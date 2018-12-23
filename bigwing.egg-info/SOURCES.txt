@@ -1,7 +1,0 @@
-setup.cfg
-setup.py
-bigwing.egg-info/PKG-INFO
-bigwing.egg-info/SOURCES.txt
-bigwing.egg-info/dependency_links.txt
-bigwing.egg-info/requires.txt
-bigwing.egg-info/top_level.txt

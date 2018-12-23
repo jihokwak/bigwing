@@ -17,12 +17,21 @@ setup(
 	description			= 'bingwing api processor',
 	author 				= 'jihokwak',
 	author_email		= 'kakuteeko@naver.com',
-	packages 			= [],
+	packages         	= find_packages(exclude = ['docs', 'example']),
 	url 				= ['https://github.com/jihokwak/bigwing'],
 	download_url		= ['https://github.com/jihokwak/bigwing/archive/master.zip'],
 	install_requires	= install_requires,
 	setup_requires		= setup_requires,
 	dependency_links	= dependency_links,
 	keywords			= ["geocoder", 'api processor'],
-	python_requires		= '>=3'	
+	python_requires		= '>=3',
+	zip_safe			= False,
+    classifiers      	= [
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.2',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6'
+    ]	
 )

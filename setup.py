@@ -19,7 +19,7 @@ setup(
 	author_email		= 'kakuteeko@naver.com',
 	packages 			= [],
 	url 				= ['https://github.com/jihokwak/bigwing'],
-	download_url		= ['https://github.com/jihokwak/bigwing/archive/bigwing-master.zip'],
+	download_url		= ['https://github.com/jihokwak/bigwing/archive/master.zip'],
 	install_requires	= install_requires,
 	setup_requires		= setup_requires,
 	dependency_links	= dependency_links,

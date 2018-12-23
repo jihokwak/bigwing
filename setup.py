@@ -13,8 +13,8 @@ setup_requires = []
 
 setup(
 	name				= 'bigwing',
-	version				= '1.0',
-	description			= 'bingwing api processor',
+	version				= '1.0.1',
+	description			= 'bingwing project',
 	author 				= 'jihokwak',
 	author_email		= 'kakuteeko@naver.com',
 	packages         	= find_packages(exclude = ['docs']),
@@ -23,6 +23,9 @@ setup(
 	dependency_links	= dependency_links,
 	keywords			= ["geocoder", 'api processor'],
 	python_requires		= '>=3',
+	package_data     =  {
+		'api': ['api.py']
+	},
 	zip_safe			= False,
     classifiers      	= [
         'Programming Language :: Python :: 3',

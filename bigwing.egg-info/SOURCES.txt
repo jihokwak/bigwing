@@ -3,8 +3,8 @@ MANIFEST.in
 README.md
 setup.cfg
 setup.py
-api/__init__.py
-api/geocoding.py
+bigwing/__init__.py
+bigwing/api.py
 bigwing.egg-info/PKG-INFO
 bigwing.egg-info/SOURCES.txt
 bigwing.egg-info/dependency_links.txt

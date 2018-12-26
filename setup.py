@@ -13,7 +13,7 @@ setup_requires = []
 
 setup(
 	name				= 'bigwing',
-	version				= '1.0.1',
+	version				= '1.0.3',
 	description			= 'bingwing project',
 	author 				= 'jihokwak',
 	author_email		= 'kakuteeko@naver.com',

@@ -232,7 +232,7 @@ class AddressConverter(BigwingAPIProcessor) :
         
         status = "OK" if resp['results']['juso'] != [] else "NOT_FOUND" #상태코드 조회
         if status == 'OK' :
-            values = resp['results']['juso'][0]
+            values = resp['results']['juso']
             return tuple([status] + [value for value in values.items()])
         else :
             return tuple(["NOT_FOUND"])    

@@ -23,9 +23,6 @@ setup(
 	dependency_links	= dependency_links,
 	keywords			= ["geocoder", 'api processor'],
 	python_requires		= '>=3',
-	package_data     =  {
-		'api': ['api.py']
-	},
 	zip_safe			= False,
     classifiers      	= [
         'Programming Language :: Python :: 3',

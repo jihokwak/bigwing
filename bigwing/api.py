@@ -14,13 +14,10 @@ warnings.filterwarnings("ignore")
 class BigwingAPIProcessor(metaclass=ABCMeta) :
 
     @abstractmethod
-    def insert(self) :
-        pass
-    @abstractmethod
     def _fetch(self) :
         pass
     @abstractmethod
-    def summary(self) :
+    def run(self) :
         pass
     
     def insert(self, data, col) :
@@ -101,7 +98,7 @@ class BigwingAPIProcessor(metaclass=ABCMeta) :
         print("- 성공율 : {}%".format(round(sum(self.data.처리상태 == "OK")/self.data.shape[0]*100,1)))
         
     def _check(self, attr) :
-        
+
         try:
             getattr(self, attr)
         except AttributeError:

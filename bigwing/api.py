@@ -14,7 +14,7 @@ warnings.filterwarnings("ignore")
 class BigwingAPIProcessor(metaclass=ABCMeta) :
 
     @abstractmethod
-    def _fetch(self) :
+    def __fetch(self) :
         pass
     @abstractmethod
     def run(self) :
@@ -41,15 +41,15 @@ class BigwingAPIProcessor(metaclass=ABCMeta) :
         self._check("data") #데이터 삽입여부 확인
         self._check("url") # 인증키 유효성 확인
 
-        data = self.data
+        data = self.data.copy()
         if (limit == True) & ("처리상태" in data.columns) :
             data = data[data["처리상태"] != "OK"]
         data_size = len(data)
         succeed_cnt = 0
         if data_size != 0 :
-            for idx, keyword in enumerate(self.data[self.col]) :
+            for idx, keyword in enumerate(data[self.col]) :
                 #변환 및 저장
-                values = self._fetch(keyword)
+                values = self.__fetch(keyword)
                 if values[0] == "OK" :
                     succeed_cnt += 1
                 for value in values[1:] :
@@ -120,14 +120,14 @@ class Vwolrd_Geocoder(BigwingAPIProcessor) :
         self._set_param()
         
         #인증키 유효성 확인
-        status = self._fetch("서울특별시 종로구 세종로 1")[0]     
+        status = self.__fetch("서울특별시 종로구 세종로 1")[0]     
         if status != "OK" :
             del self.params['key'], self.url
             print("KEY " + status + " : 인증키를 다시 확인해주세요.")
         else :
             print("KEY " + status + " : 인증키 유효성 확인 성공!")
                     
-    def _fetch(self, address) :
+    def __fetch(self, address) :
         
         values = {}
         fetch_url = self.url +"&address="+ address
@@ -162,7 +162,7 @@ class Google_Geocoder(BigwingAPIProcessor) :
         self._set_param()
         
         #인증키 유효성 확인
-        status = self._fetch("서울특별시 종로구 세종로 1")[0]    
+        status = self.__fetch("서울특별시 종로구 세종로 1")[0]    
         if status != "OK" :
             del self.params['key'], self.url
             print("KEY " + status + " : 인증키를 다시 확인해주세요.")
@@ -170,7 +170,7 @@ class Google_Geocoder(BigwingAPIProcessor) :
             print("KEY " + status + " : 인증키 유효성 확인 성공!")
 
     
-    def _fetch(self, keyword) :
+    def __fetch(self, keyword) :
         
         values = {}
         fetch_url = self.url +"&address="+ keyword
@@ -205,14 +205,14 @@ class AddressConverter(BigwingAPIProcessor) :
         self._set_param()
         
         #인증키 유효성 확인
-        status = self._fetch("서울특별시 종로구 세종로 1")[0]
+        status = self.__fetch("서울특별시 종로구 세종로 1")[0]
         if status != "OK" :
             del self.params['confmKey'], self.url
             print("KEY " + status + " : 인증키를 다시 확인해주세요.")
         else :
             print("KEY " + status + " : 인증키 유효성 확인 성공!")   
     
-    def _fetch(self, keyword) :
+    def __fetch(self, keyword) :
         
         values = {}
         fetch_url = self.url +"&keyword="+ keyword
@@ -259,7 +259,7 @@ class SuperAPICaller(BigwingAPIProcessor) :
         
         self.values = values
         
-    def _fetch(self, keyword) :
+    def __fetch(self, keyword) :
         
         values = {}
         fetch_url = self.url +"&" + self.tagname + "="+ keyword

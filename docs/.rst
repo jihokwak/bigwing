@@ -1,0 +1,17 @@
+ package
+========
+
+Submodules
+----------
+
+.. toctree::
+
+   api
+
+Module contents
+---------------
+
+.. automodule:: 
+    :members:
+    :undoc-members:
+    :show-inheritance:

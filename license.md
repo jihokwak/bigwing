@@ -1,6 +1,6 @@
 ﻿BSD3 License
 =========
-opyright (c), <2019> Bigwing Project Team (CEO jihokwak)
+Copyright (c), <2019> Bigwing Project Team (CEO jihokwak)
 All rights reserved.
 
 저작권 (C) <2019> Bigwing Project Team (대표 : 곽지호)

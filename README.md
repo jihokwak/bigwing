@@ -1,5 +1,1 @@
-# bigwing
-bigwing project
-
-
-**Bigwing Project Source Code 입니다.
+# Bigwing Project Source Code 입니다.

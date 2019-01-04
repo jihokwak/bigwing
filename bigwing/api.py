@@ -12,7 +12,7 @@ warnings.filterwarnings("ignore")
 
 
 class BigwingAPIProcessor(metaclass=ABCMeta) :
-''' 빅윙추상클래스 '''
+    ''' 빅윙추상클래스 '''
     @abstractmethod
     def __fetch(self) :
         pass

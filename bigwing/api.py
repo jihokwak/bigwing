@@ -10,9 +10,9 @@ from time import sleep
 from abc import *
 warnings.filterwarnings("ignore")
 
-####빅윙추상클래스####
-class BigwingAPIProcessor(metaclass=ABCMeta) :
 
+class BigwingAPIProcessor(metaclass=ABCMeta) :
+''' 빅윙추상클래스 '''
     @abstractmethod
     def __fetch(self) :
         pass

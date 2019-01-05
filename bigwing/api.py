@@ -21,7 +21,9 @@ class BigwingAPIProcessor(metaclass=ABCMeta) :
         pass
     
     def insert(self, data, col) :
-        
+        '''DataFrame 자료형의 데이터 입력받고,
+        검색키워드가 있는 컬럼명을 인수로 받습니다.
+        '''
         self._check("url") # 인증키 유효성 확인
     
         # 데이터 유효성 확인 및 삽입
@@ -37,7 +39,9 @@ class BigwingAPIProcessor(metaclass=ABCMeta) :
         return self
     
     def run(self, limit=True) :
-        
+        '''api 호출을 일괄실행시킵니다.
+        limit 인수는 Boolean 자료형을 받습니다. Default는 True입니다.
+        limit이 True일경우, 처리상태가 "OK"인 행데이터는 Skip하고 연속진행합니다.'''
         self._check("data") #데이터 삽입여부 확인
         self._check("url") # 인증키 유효성 확인
 

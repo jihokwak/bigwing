@@ -1,2 +1,5 @@
 
 *.doctree
+
+
+.idea/workspace.xml

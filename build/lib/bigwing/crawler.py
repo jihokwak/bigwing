@@ -172,9 +172,9 @@ class BigwingCrawler():
 
 class EPLCrawler(BigwingCrawler):
 
-    def __init__(self, page_nm="recently_goal", browser='Chrome', headless=True):
+    def __init__(self, url,  page_nm="all",  browser='Chrome', headless=True):
         import time
-        self.url = "https://www.premierleague.com/stats/top/players/goals?se=210"
+        self.url = url
         super().__init__(self.url, browser, headless)
         time.sleep(2)
         self.set_page(page_nm)

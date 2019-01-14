@@ -7,7 +7,7 @@ install_requires = [
 	'ipython==7.2.0',
 	'ipython-genutils==0.2.0',
 	'selenium==3.141.0',
-	'beautifulsoup4==4.6.3'
+	'beautifulsoup4==4.6.3',
 	'pymongo==3.7.2',
 	'PyMySQL==0.9.3'
 ]
@@ -17,7 +17,7 @@ setup_requires = []
 
 setup(
 	name				= 'bigwing',
-	version				= '1.2',
+	version				= '1.2.0',
 	description			= 'bingwing project',
 	author 				= 'jihokwak',
 	author_email		= 'kakuteeko@naver.com',

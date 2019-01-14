@@ -5,7 +5,7 @@ from pymongo import MongoClient
 
 
 class BigwingMysqlDriver() :
-    '''* BigwingMysqlDriver 모듈 클래스
+    '''BigwingMysqlDriver 모듈 클래스
          - 사용법 : 인스턴스명 = BigwingMysqlDriver("호스트명", "DB명", "유저명", "패스워드")
          - port는 3306 을 디폴트로 사용 (변경시 port=포트번호 를 인수로 넘김)
     '''
@@ -34,14 +34,14 @@ class BigwingMysqlDriver() :
             self.tables[table] = columns
 
     def show(self):
-        ''' * 테이블과 컬럼 정보를 출력하는 함수
+        ''' 테이블과 컬럼 정보를 출력하는 함수
              - 사용법 : 인스턴스명.show()
         '''
         return self.tables
 
 
     def create(self, table, *args):
-        '''* 테이블을 생성하는 함수
+        '''테이블을 생성하는 함수
             - 사용법 : 인스턴스명.create('테이블명', (컬럼1, 컬럼2,...) )
             - 특징 : 모든 컬럼은 varchar(50) default null 형으로 일괄 생성됨
         '''
@@ -59,8 +59,8 @@ class BigwingMysqlDriver() :
 
 
     def delete(self, table):
-        '''* 특정 테이블을 삭제하는 함수
-                 - 사용법 : 인스턴스명.delete('테이블명')
+        ''' 특정 테이블을 삭제하는 함수
+             - 사용법 : 인스턴스명.delete('테이블명')
         '''
         SQL = "DROP TABLE {}".format(table)
         self.cursor.execute(SQL)
@@ -69,8 +69,8 @@ class BigwingMysqlDriver() :
 
 
     def insert(self, table, *args):
-        '''* 특정 테이블에 데이터를 입력하는 함수
-            - 사용법 : 인스턴스명.insert('테이블명')
+        ''' 특정 테이블에 데이터를 입력하는 함수
+             - 사용법 : 인스턴스명.insert('테이블명')
         '''
         if table not in self.tables.keys() :
             print("{} 테이블이 존재하지 않습니다.".format(table))
@@ -93,15 +93,15 @@ class BigwingMysqlDriver() :
 
 
     def commit(self):
-        '''* insert()함수 사용후 커밋을 실행하는 함수
-               - 사용법 : 인스턴스명.commit()
+        ''' insert()함수 사용후 커밋을 실행하는 함수
+             - 사용법 : 인스턴스명.commit()
         '''
         self.db.commit()
 
 
     def takeout(self, table):
-        '''* 테이블 데이터를 데이터프레임 타입으로 가져오는 함수
-                - 사용법 : 인스턴스명.takeout('테이블명')
+        ''' 테이블 데이터를 데이터프레임 타입으로 가져오는 함수
+             - 사용법 : 인스턴스명.takeout('테이블명')
         '''
         self.cursor.execute("select * from {}".format(table))
         df = pd.DataFrame(columns=self.tables[table])

@@ -21,8 +21,7 @@ class BigwingAPIProcessor(metaclass=ABCMeta) :
         pass
     
     def insert(self, data, col) :
-        '''DataFrame 자료형의 데이터 입력받고,
-        검색키워드가 있는 컬럼명을 인수로 받습니다.
+        '''DataFrame 자료형의 데이터 입력받고, 검색키워드가 있는 컬럼명을 인수로 받습니다.
         '''
         self._check("url") # 인증키 유효성 확인
     

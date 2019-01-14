@@ -7,7 +7,7 @@ from pymongo import MongoClient
 class BigwingMysqlDriver() :
     '''BigwingMysqlDriver 모듈 클래스<br />
 
-         - 사용법 : 인스턴스명 = BigwingMysqlDriver("호스트명", "DB명", "유저명", "패스워드")<br />
+         - 사용법 : 인스턴스명 = BigwingMysqlDriver("호스트명", "DB명", "유저명", "패스워드")
 
          - port는 3306 을 디폴트로 사용 (변경시 port=포트번호 를 인수로 넘김)
     '''

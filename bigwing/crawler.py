@@ -2,14 +2,18 @@ from bs4 import BeautifulSoup
 import warnings; warnings.filterwarnings("ignore")
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.keys import Keys
 from IPython.display import clear_output
-import re, os
+import re, os, time
+import pandas as pd
+from bigwing.db import BigwingMysqlDriver
 
 class BigwingCrawler():
 
-    def __init__(self, url, browser='PhantomJS'):
+    def __init__(self, url, browser='Chrome', headless=True):
 
         self.url = url
+        self.headless = headless
         self.set_soup(self.url, browser)
         print("사이트 브라우징이 성공했습니다.")
 
@@ -108,7 +112,7 @@ class BigwingCrawler():
 
         return self.html
 
-    def set_browser(self, url, browser="PhantomJS"):
+    def set_browser(self, url, browser="Chrome"):
 
         option = Options()
         option.add_argument('headless')
@@ -118,14 +122,26 @@ class BigwingCrawler():
         option.add_argument(
             "user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36")
         option.add_argument("lang=ko_KR")
+
+
         cur_dir = os.path.abspath(os.path.dirname(__file__))
         browser_dir = os.path.join(cur_dir, "browser")
-        if browser == "PhantomJS":
+
+        if browser == "Chrome":
+            browser_file = browser_dir + "/chromedriver.exe"
+            if self.headless == True :
+                self.browser = webdriver.Chrome(browser_file, chrome_options=option)
+            else :
+                self.browser = webdriver.Chrome(browser_file)
+            self.browser.get('about:blank')
+            self.browser.execute_script("Object.defineProperty(navigator, 'plugins', {get: function() {return[1, 2, 3, 4, 5]}})")
+            self.browser.execute_script("const getParameter = WebGLRenderingContext.getParameter;WebGLRenderingContext.prototype.getParameter = function(parameter) {if (parameter === 37445) {return 'NVIDIA Corporation'} if (parameter === 37446) {return 'NVIDIA GeForce GTX 980 Ti OpenGL Engine';}return getParameter(parameter);};")
+
+        else:
             browser_file = browser_dir + "/PhantomJS.exe"
             self.browser = webdriver.PhantomJS(browser_file)
-        else:
-            browser_file = browser_dir + "/chromedriver.exe"
-            self.browser = webdriver.Chrome(browser_file)
+
+        self.browser.execute_script("Object.defineProperty(navigator, 'languages', {get: function() {return ['ko-KR', 'ko']}})")
         self.browser.implicitly_wait(3)
         self.browser.get(url)
 
@@ -144,39 +160,120 @@ class BigwingCrawler():
             text = text + "\n" + line
         return text
 
+    def get_alltags(self):
+        alltags = self.soup.find_all(True)
+        alltags = [tag.name for tag in alltags]
+        alltags = list(set(alltags))
+        return alltags
+
     def __del__(self) :
+        print("사이트 브라우징이 종료되었습니다.")
+        self.browser.close()
 
-        self.browser.Quit()
+class EPLCrawler(BigwingCrawler):
 
-#교보문고 국내도서 결과 크롤러
-class KyoboCrawler(BigwingCrawler):
+    def __init__(self, page_nm="recently_goal", browser='Chrome', headless=True):
+        import time
+        self.url = "https://www.premierleague.com/stats/top/players/goals?se=210"
+        super().__init__(self.url, browser, headless)
+        time.sleep(2)
+        self.set_page(page_nm)
 
-    def __init__(self, browser='PhantomJS'):
+    def set_page(self, page_nm):
 
-        self.url = "http://www.kyobobook.co.kr/search/SearchKorbookMain.jsp"
-        super().__init__(self.url, browser)
+        if page_nm == 'all_seasons_goal' :
+            self.browser.find_element_by_xpath("//*[@id='mainContent']/div/div/div[2]/div[1]/section/div[1]/div[2]").click()
+            self.browser.find_element_by_xpath("//*[@id='mainContent']/div/div/div[2]/div[1]/section/div[1]/ul/li[1]").click()
 
-    def fetch(self, keyword):
+        elif page_nm == 'recently_goal' :
+            self.browser.find_element_by_xpath("//*[@id='mainContent']/div/div/div[2]/div[1]/section/div[1]/div[2]").click()
+            self.browser.find_element_by_xpath("//*[@id='mainContent']/div/div/div[2]/div[1]/section/div[1]/ul/li[2]").click()
 
-        self.browser.find_element_by_xpath("// *[@id='searchKeyword']").send_keys(keyword)
-        self.browser.find_element_by_xpath("//*[@id='searchTop']/div[1]/div/input").click()
+        else :
+            return
+
+    def fetch(self, parant_tag, child_tag=None):
+
         self.reset_soup()
-        result = {
-            "카테고리":  self.browser.find_element_by_xpath("//*[@id='container']/div[8]/form/table/tbody/tr[1]/td[2]/div[2]/a/span").text.strip(),
-            "도서명":  self.browser.find_element_by_xpath("//*[@id='container']/div[8]/form/table/tbody/tr[1]/td[2]/div[2]/a/strong").text.strip(),
-            "상세": [x.strip() for x in  self.browser.find_element_by_xpath("//*[@id='container']/div[8]/form/table/tbody/tr[1]/td[2]/div[4]").text.split("|")],
-            "가격":  self.browser.find_element_by_xpath("//*[@id='container']/div[8]/form/table/tbody/tr[1]/td[4]/div[2]/strong").text.strip()
-         }
-        self.browser.find_element_by_xpath("// *[@id='searchKeyword']").clear()
-        return result
+        tags = self.soup.select(parant_tag)
 
-    def __del__(self) :
+        results = []
+        for tag in tags :
+            if child_tag != None :
+                tag = tag.select(child_tag)
+                tag = [data.text.strip() for data in tag]
 
-        self.browser.Quit()
+            if tag == [] :
+                continue
+            results.append(tag)
+        return results
+
+    def page_skipper(self):
+
+        self.reset_soup()
+        attrs = self.get_all_attr()
+        btns = self.get_next_page_btn(*attrs)
+        btn = next(btns)
+        btn_class_nm = btn.get_attribute_list('class')[-1]
+        btn_elem = self.browser.find_element_by_class_name(btn_class_nm)
+        #return btn_elem
+        print('click!', btn_class_nm)
+        self.browser.execute_script("arguments[0].click();", btn_elem)
 
 
+    def get_next_page_btn(self, *attrs):
 
+        self.reset_soup()
+        next_page_btns = []
+        for attr in attrs :
+            result = self.soup.find_all(True, {attr: re.compile(r'[/w]*(next)[/w]*', re.I)})
+            if result != [] :
+                next_page_btns.extend(result)
+        for next_page_btn in next_page_btns :
+            yield next_page_btn
 
+    def get_all_attr(self):
 
+        tags = self.soup.find_all(True)
+        attrs_list = [[attr for attr in tag.attrs.keys()] for tag in tags]
+        attrs = []
+        for attr in attrs_list:
+            attrs.extend(attr)
+        attrs = list(set(attrs))
+        return attrs
 
+    def run(self):
 
+        cur_page = ""
+        page_nm = 0
+        tabs = self.fetch('tr', 'th')[0]
+        self.data = pd.DataFrame(columns=list(tabs))
+        self.prev_data = self.fetch('tr', 'td')
+
+        while cur_page != self.html :
+
+            page_nm += 1
+            cur_data = self.fetch('tr', 'td')
+            if (page_nm >= 2) and (self.prev_data == cur_data) : break;
+
+            for row in cur_data:
+
+                print(self.data.shape[0], row)
+                self.data.loc[self.data.shape[0]] = row
+
+            self.prev_data = cur_data
+
+            print('{}번째 페이지 저장완료!'.format(page_nm))
+            print('다음페이지로 넘어갑니다.')
+
+            self.page_skipper()
+            time.sleep(1)
+            self.reset_soup()
+
+    def takeout(self):
+
+        try:
+            self.data
+        except NameError:
+            raise RuntimeError("FAILED : 처리된 데이터가 없습니다.")
+        return self.data

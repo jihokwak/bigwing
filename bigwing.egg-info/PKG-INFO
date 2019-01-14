@@ -1,13 +1,13 @@
 Metadata-Version: 1.2
 Name: bigwing
-Version: 1.1.1
+Version: 1.2
 Summary: bingwing project
 Home-page: UNKNOWN
 Author: jihokwak
 Author-email: kakuteeko@naver.com
 License: UNKNOWN
 Description: UNKNOWN
-Keywords: geocoder,api processor,crawler
+Keywords: geocoder,api processor,crawler,dbdriver
 Platform: UNKNOWN
 Classifier: Programming Language :: Python :: 3
 Classifier: Programming Language :: Python :: 3.2

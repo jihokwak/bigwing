@@ -5,6 +5,7 @@ setup.py
 bigwing/__init__.py
 bigwing/api.py
 bigwing/crawler.py
+bigwing/db.py
 bigwing/search.py
 bigwing.egg-info/PKG-INFO
 bigwing.egg-info/SOURCES.txt

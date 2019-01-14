@@ -8,6 +8,8 @@ install_requires = [
 	'ipython-genutils==0.2.0',
 	'selenium==3.141.0',
 	'beautifulsoup4==4.6.3'
+	'pymongo==3.7.2',
+	'PyMySQL==0.9.3'
 ]
 
 dependency_links = []
@@ -15,7 +17,7 @@ setup_requires = []
 
 setup(
 	name				= 'bigwing',
-	version				= '1.1.1',
+	version				= '1.2',
 	description			= 'bingwing project',
 	author 				= 'jihokwak',
 	author_email		= 'kakuteeko@naver.com',
@@ -23,7 +25,7 @@ setup(
 	install_requires	= install_requires,
 	setup_requires		= setup_requires,
 	dependency_links	= dependency_links,
-	keywords			= ["geocoder", 'api processor','crawler'],
+	keywords			= ["geocoder", 'api processor','crawler','dbdriver'],
 	python_requires		= '>=3',
 	package_data     = {
 		'bigwing' : ['browser/chromedriver.exe', #키값은 상위디렉토리 #벨류리스트는 경로&파일명

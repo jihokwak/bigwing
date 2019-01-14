@@ -181,11 +181,11 @@ class EPLCrawler(BigwingCrawler):
 
     def set_page(self, page_nm):
 
-        if page_nm == 'all_seasons_goal' :
+        if page_nm == 'all' :
             self.browser.find_element_by_xpath("//*[@id='mainContent']/div/div/div[2]/div[1]/section/div[1]/div[2]").click()
             self.browser.find_element_by_xpath("//*[@id='mainContent']/div/div/div[2]/div[1]/section/div[1]/ul/li[1]").click()
 
-        elif page_nm == 'recently_goal' :
+        elif page_nm == 'recently' :
             self.browser.find_element_by_xpath("//*[@id='mainContent']/div/div/div[2]/div[1]/section/div[1]/div[2]").click()
             self.browser.find_element_by_xpath("//*[@id='mainContent']/div/div/div[2]/div[1]/section/div[1]/ul/li[2]").click()
 

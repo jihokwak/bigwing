@@ -2,7 +2,7 @@ import pymysql
 import numpy as np
 import pandas as pd
 from pymongo import MongoClient
-
+from IPython.display import clear_output
 
 class BigwingMysqlDriver() :
     '''BigwingMysqlDriver 모듈 클래스<br />
@@ -110,6 +110,8 @@ class BigwingMysqlDriver() :
 
         for i in range(data.shape[0]) :
             self.insert(table, tuple(data.loc[i]))
+            print("%.1f%% 진행중" % ((i+1)/data.shape[0]*100))
+            clear_output(wait=True)
 
         print("데이터 입력이 완료되었습니다.")
 

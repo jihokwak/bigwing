@@ -77,7 +77,7 @@ class BigwingMysqlDriver() :
     def insert(self, table, *args):
         ''' 특정 테이블에 데이터를 입력하는 함수
 
-             - 사용법 : 인스턴스명.insert('테이블명')
+             - 사용법 : 인스턴스명.insert('테이블명', (컬럼1, 컬럼2, 컬럼3, ...))
         '''
         if table not in self.tables.keys() :
             print("{} 테이블이 존재하지 않습니다.".format(table))
@@ -98,6 +98,20 @@ class BigwingMysqlDriver() :
         SQL = SQL + ")"
         self.cursor.execute(SQL, *args)
 
+    def insert_bulk(self, table, data):
+        '''
+        특정 테이블에 데이터프레임 형태의 자료를 한번에 입력하는 함수
+
+        - 사용법 : 인스턴스명.insert_bulk('테이블명', '데이터프레임변수')
+        '''
+        if type(data) != type(pd.DataFrame()):
+            print("입력데이터 타입이 데이터프레임이어야 합니다.")
+            return;
+
+        for i in range(data.shape[0]) :
+            self.insert(table, tuple(data.loc[i]))
+
+        print("데이터 입력이 완료되었습니다.")
 
     def commit(self):
         ''' insert()함수 사용후 커밋을 실행하는 함수

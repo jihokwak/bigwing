@@ -35,11 +35,18 @@ class BigwingMysqlDriver() :
             columns = tuple(columns)
             self.tables[table] = columns
 
-    def show(self):
+    def show(self, table=None):
         ''' 테이블과 컬럼 정보를 출력하는 함수
 
-             - 사용법 : 인스턴스명.show()
+             - 사용법 : 인스턴스명.show()  또는 인스턴스명.show(특정테이블명)
         '''
+        if table != None :
+            try :
+                return self.tables[table]
+            except :
+                print('{} 테이블이 존재하지 않습니다.'.format(table))
+                return None
+
         return self.tables
 
 
@@ -50,11 +57,14 @@ class BigwingMysqlDriver() :
 
             - 특징 : 모든 컬럼은 varchar(50) default null 형으로 일괄 생성됨
         '''
+        if self.show(table) != None :
+            print('{} 테이블이 이미 존재합니다.'.format(table))
+            return
         SQL = " CREATE TABLE """ + table + """ ( """
         cols = []
 
         for arg in args[0] :
-            SQL = SQL + "{} varchar(50) DEFAULT NULL,".format(arg)
+            SQL = SQL + "{} varchar(100) DEFAULT NULL,".format(arg)
         SQL = SQL[:-1] # 쉼표제거
         SQL = SQL + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
         print(SQL)
@@ -68,6 +78,8 @@ class BigwingMysqlDriver() :
 
              - 사용법 : 인스턴스명.delete('테이블명')
         '''
+        if self.show(table) == None :
+            return
         SQL = "DROP TABLE {}".format(table)
         self.cursor.execute(SQL)
         del self.tables[table]
@@ -113,7 +125,7 @@ class BigwingMysqlDriver() :
             print("%.1f%% 진행중" % ((i+1)/data.shape[0]*100))
             clear_output(wait=True)
 
-        print("데이터 입력이 완료되었습니다.")
+        print("총 {}건의 데이터 입력이 완료되었습니다.\n종료전 Commit 여부를 확인하세요.".format(data.shape[0]))
 
     def commit(self):
         ''' insert()함수 사용후 커밋을 실행하는 함수
@@ -121,6 +133,7 @@ class BigwingMysqlDriver() :
              - 사용법 : 인스턴스명.commit()
         '''
         self.db.commit()
+        print("커밋이 완료되었습니다.")
 
 
     def takeout(self, table):
@@ -135,10 +148,16 @@ class BigwingMysqlDriver() :
             if row == None :
                 break;
             df.loc[df.shape[0]] = row
+        print("데이터를 반출합니다.")
         return df
 
-    def __del___(self): #커서종료
+    def close(self):
+        print("DB연결을 종료합니다.")
+        self.cursor.close()
+        self.db.close()
 
+    def __del___(self): #커서종료
+        print("DB연결을 종료합니다.")
         self.cursor.close()
         #DB커넥터종료
         self.db.close()

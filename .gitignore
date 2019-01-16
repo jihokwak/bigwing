@@ -2,4 +2,10 @@
 *.doctree
 
 
-.idea/workspace.xml
+.idea/
+
+tmpdata/
+
+ghostdriver.log
+
+test.py

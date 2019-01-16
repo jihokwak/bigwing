@@ -19,6 +19,7 @@ class BigwingCrawler():
         '''
         self.url = url
         self.headless = headless
+        self.browser = browser
         self.set_soup(self.url, browser)
         print("사이트 브라우징이 성공했습니다.")
 
@@ -144,8 +145,8 @@ class BigwingCrawler():
         :return: 없음
         '''
         try :
-            self.set_browser(url, browser)
-            self.html = self.browser.page_source
+            self.set_driver(url, browser)
+            self.html = self.driver.page_source
         except AttributeError as e:
             print("사이트 브라우징이 실패했습니다.")
 
@@ -154,7 +155,7 @@ class BigwingCrawler():
         문자열타입 html 문서를 현재 selenium broswer 객체를 기준으로 업데이트하는 함수
         :return: 없음
         '''
-        self.html = self.browser.page_source
+        self.html = self.driver.page_source
 
     def get_html(self):
         '''
@@ -163,7 +164,7 @@ class BigwingCrawler():
         '''
         return self.html
 
-    def set_browser(self, url, browser="Chrome"):
+    def set_driver(self, url, browser="Chrome"):
         '''
         selenium 패키지의 browser driver 모듈을 세팅하는 함수
         :param url: 문자열타입 url 주소를 입력받는 인수
@@ -186,27 +187,27 @@ class BigwingCrawler():
         if browser == "Chrome":
             browser_file = browser_dir + "/chromedriver.exe"
             if self.headless == True :
-                self.browser = webdriver.Chrome(browser_file, chrome_options=option)
+                self.driver = webdriver.Chrome(browser_file, chrome_options=option)
             else :
-                self.browser = webdriver.Chrome(browser_file)
-            self.browser.get('about:blank')
-            self.browser.execute_script("Object.defineProperty(navigator, 'plugins', {get: function() {return[1, 2, 3, 4, 5]}})")
-            self.browser.execute_script("const getParameter = WebGLRenderingContext.getParameter;WebGLRenderingContext.prototype.getParameter = function(parameter) {if (parameter === 37445) {return 'NVIDIA Corporation'} if (parameter === 37446) {return 'NVIDIA GeForce GTX 980 Ti OpenGL Engine';}return getParameter(parameter);};")
+                self.driver = webdriver.Chrome(browser_file)
+            self.driver.get('about:blank')
+            self.driver.execute_script("Object.defineProperty(navigator, 'plugins', {get: function() {return[1, 2, 3, 4, 5]}})")
+            self.driver.execute_script("const getParameter = WebGLRenderingContext.getParameter;WebGLRenderingContext.prototype.getParameter = function(parameter) {if (parameter === 37445) {return 'NVIDIA Corporation'} if (parameter === 37446) {return 'NVIDIA GeForce GTX 980 Ti OpenGL Engine';}return getParameter(parameter);};")
 
         else:
             browser_file = browser_dir + "/PhantomJS.exe"
-            self.browser = webdriver.PhantomJS(browser_file)
+            self.driver = webdriver.PhantomJS(browser_file)
 
-        self.browser.execute_script("Object.defineProperty(navigator, 'languages', {get: function() {return ['ko-KR', 'ko']}})")
-        self.browser.implicitly_wait(3)
-        self.browser.get(url)
+        self.driver.execute_script("Object.defineProperty(navigator, 'languages', {get: function() {return ['ko-KR', 'ko']}})")
+        self.driver.implicitly_wait(3)
+        self.driver.get(url)
 
-    def get_browser(self):
+    def get_driver(self):
         '''
         Selenium Browser Driver 객체를 리턴하는 Getter 함수
         :return: 문자열 타입 html 변수
         '''
-        return self.browser
+        return self.driver
 
     def get_text(self):
         '''
@@ -234,11 +235,11 @@ class BigwingCrawler():
 
     def __del__(self) :
         print("사이트 브라우징이 종료되었습니다.")
-        self.browser.close()
+        self.driver.close()
 
 class EPLCrawler(BigwingCrawler):
 
-    def __init__(self, url,  page_nm="all",  browser='Chrome', headless=True):
+    def __init__(self, url='about:blank', match_nm=None,  page_nm="all", page_type="Stat", browser='Chrome', headless=True):
         '''
         EPL사이트의 Stat 정보를 가져오는 크롤러 클래스 생성자
         :param url: 페이지 url 입력 인수
@@ -246,28 +247,128 @@ class EPLCrawler(BigwingCrawler):
         :param browser: 사용 브라우저 입력 인수 (Default : Chrome)
         :param headless: 헤드리스 모드 옵션 입력 인수 (Default : True)
         '''
-        import time
-        self.url = url
-        super().__init__(self.url, browser, headless)
-        time.sleep(2)
-        self.set_page(page_nm)
+        self.page_nm = page_nm
+        self.page_type = page_type
+        self.browser = browser
+        super().__init__(url, browser, headless)
+        if page_type=="Stat" :
+            self.url = url
+            self.set_stat_page(self.page_nm)
 
-    def set_page(self, page_nm):
+        elif page_type=="Results" :
+            self.url = url
+            pass
+
+        elif page_type=="Lineup" :
+            self.url = "https://www.premierleague.com/match/"
+            self.first_match = match_nm[0]
+            self.last_match = match_nm[1]
+            self.set_lineup_page(self.first_match)
+
+        elif page_type=="Matchs" :
+            self.url = "https://www.premierleague.com/match/"
+            self.first_match = match_nm[0]
+            self.last_match = match_nm[1]
+            self.set_matchstats_page(self.first_match)
+        else :
+            pass
+
+        time.sleep(2)
+
+    def set_level_results_page(self, level):
+        for i in range(10) :
+            try :
+                self.driver.get(self.url)
+                if level == "First Team" :
+                    pass
+
+                elif level == "PL2" :
+
+                    self.driver.find_element_by_xpath("//*[@id='mainContent']/header/div/div[1]/div/ul/li[2]").click()
+                    self.driver.refresh()
+
+                elif level == "U18" :
+                    self.driver.find_element_by_xpath("//*[@id='mainContent']/header/div/div[1]/div/ul/li[3]").click()
+                    self.driver.refresh()
+                self.reset_soup()
+                time.sleep(3)
+                break;
+            except:
+                print("재시도합니다. 재시도횟수 {}번".format(i + 1))
+                time.sleep(0.5)
+
+                break;
+
+    def set_league_results_page(self, league, level):
+        '''
+        EPL사이트 Results 동적자바스크립트페이지를 특정 메뉴탭을 선택하여 크롤링대상 웹페이지를 세팅하는 함수
+        :param league: 경기리그 옵션 입력 인수
+        :return: 없음
+        '''
+        level_idx = ["First Team", "PL2", "U18"].index(level) + 1
+        league_list = self.__results_league_menu_scanner(level)
+        league_idx = league_list.index(league) + 1
+        print("league_index : ",league_idx)
+        for i in range(10) :
+            try :
+                self.driver.find_element_by_xpath("//*[@id='mainContent']/div/div[{}]/section/div[1]/div[2]".format(level_idx)).click()
+                time.sleep(0.5)
+                self.driver.find_element_by_xpath("//*[@id='mainContent']/div/div[{}]/section/div[1]/ul/li[{}]".format(level_idx, league_idx)).click()
+                self.reset_soup()
+                time.sleep(2)
+                break;
+            except Exception as e:
+                print(e)
+                print("재시도합니다. 재시도횟수 {}번".format(i+1))
+                time.sleep(0.5)
+
+                continue;
+
+    def set_season_results_page(self, season, level):
+        '''
+        EPL사이트 Results 동적자바스크립트페이지를 특정 메뉴탭을 선택하여 크롤링대상 웹페이지를 세팅하는 함수
+        :param season: 경기시즌 옵션 입력 인수
+        :return: 없음
+        '''
+        level_idx = ["First Team", "PL2", "U18"].index(level) + 1
+        season_list = self.__results_season_menu_scanner(level)
+        season_idx = season_list.index(season) + 1
+        print("season_index : ", season_idx)
+        for i in range(10) :
+            try:
+                self.driver.find_element_by_xpath("//*[@id='mainContent']/div/div[{}]/section/div[2]/div[2]".format(level_idx)).click()
+                time.sleep(1)
+                self.driver.find_element_by_xpath("//*[@id='mainContent']/div/div[{}]/section/div[2]/ul/li[{}]".format(level_idx,season_idx)).click()
+                for i in range(30) :
+                    self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                    time.sleep(0.1)
+
+                self.driver.execute_script("window.scrollTo(0, 0);")
+                self.reset_soup()
+                time.sleep(2)
+                break;
+            except :
+                print("재시도합니다. 재시도횟수 {}번".format(i+1))
+                time.sleep(1)
+                continue;
+
+    def set_stat_page(self, page_nm):
         '''
         EPL사이트 동적자바스크립트 페이지의 특정 메뉴탭을 선택하여 크롤링대상 웹페이지를 세팅하는 함수
         :param page_nm: 전체(all) 또는 최근시즌(recently) 옵션 입력 인수 (Default : all)
         :return: 없음
         '''
         if page_nm == 'all' :
-            self.browser.find_element_by_xpath("//*[@id='mainContent']/div/div/div[2]/div[1]/section/div[1]/div[2]").click()
-            self.browser.find_element_by_xpath("//*[@id='mainContent']/div/div/div[2]/div[1]/section/div[1]/ul/li[1]").click()
+            self.driver.find_element_by_xpath("//*[@id='mainContent']/div/div/div[2]/div[1]/section/div[1]/div[2]").click()
+            self.driver.find_element_by_xpath("//*[@id='mainContent']/div/div/div[2]/div[1]/section/div[1]/ul/li[1]").click()
 
         elif page_nm == 'recently' :
-            self.browser.find_element_by_xpath("//*[@id='mainContent']/div/div/div[2]/div[1]/section/div[1]/div[2]").click()
-            self.browser.find_element_by_xpath("//*[@id='mainContent']/div/div/div[2]/div[1]/section/div[1]/ul/li[2]").click()
+            self.driver.find_element_by_xpath("//*[@id='mainContent']/div/div/div[2]/div[1]/section/div[1]/div[2]").click()
+            self.driver.find_element_by_xpath("//*[@id='mainContent']/div/div/div[2]/div[1]/section/div[1]/ul/li[2]").click()
 
         else :
             return
+        self.reset_soup()
 
     def fetch(self, parant_tag, child_tag=None):
         '''
@@ -300,10 +401,46 @@ class EPLCrawler(BigwingCrawler):
         btns = self.get_next_page_btn(*attrs)
         btn = next(btns)
         btn_class_nm = btn.get_attribute_list('class')[-1]
-        btn_elem = self.browser.find_element_by_class_name(btn_class_nm)
+        btn_elem = self.driver.find_element_by_class_name(btn_class_nm)
         #return btn_elem
         print('click!', btn_class_nm)
-        self.browser.execute_script("arguments[0].click();", btn_elem)
+        self.driver.execute_script("arguments[0].click();", btn_elem)
+
+    def __results_season_menu_scanner(self, level):
+        for i in range(10):
+            try:
+                level_idx = ["First Team", "PL2", "U18"].index(level)+1
+                self.driver.find_element_by_xpath("//*[@id='mainContent']/div/div[{}]/section/div[2]/div[2]".format(level_idx)).click()
+                time.sleep(0.5)
+                ul = self.driver.find_element_by_xpath("//*[@id='mainContent']/div/div[{}]/section/div[2]/ul".format(level_idx))
+                lis = ul.find_elements_by_tag_name("li")
+                season_list = [li.text for li in lis]
+                self.driver.find_element_by_xpath("//*[@id='mainContent']/div/div[{}]/section/div[2]/div[2]".format(level_idx)).click()
+                return season_list
+            except Exception as e:
+                print(e)
+                print("시즌메뉴탭 클릭 재시도횟수 {}번".format(i + 1))
+                time.sleep(1)
+                continue;
+
+    def __results_league_menu_scanner(self,level):
+        for i in range(10) :
+            try :
+                level_idx = ["First Team", "PL2", "U18"].index(level) + 1
+                self.driver.find_element_by_xpath("//*[@id='mainContent']/div/div[{}]/section/div[1]/div[2]".format(level_idx)).click()
+
+                time.sleep(0.5)
+                ul = self.driver.find_element_by_xpath("//*[@id='mainContent']/div/div[{}]/section/div[1]/ul".format(level_idx))
+                lis = ul.find_elements_by_tag_name("li")
+                league_list = [li.text for li in lis]
+                self.driver.find_element_by_xpath("//*[@id='mainContent']/div/div[{}]/section/div[1]/div[2]".format(level_idx)).click()
+                return league_list
+
+            except Exception as e:
+                print(e)
+                print("리그메뉴탭 클릭 재시도횟수 {}번".format(i + 1))
+                time.sleep(1)
+                continue;
 
     def get_next_page_btn(self, *attrs):
         '''
@@ -338,39 +475,244 @@ class EPLCrawler(BigwingCrawler):
         현재페이지 크롤링 및 다음페이지 스킵 액션을 마지막페이지까지 연속진행하는 함수
         :return: 없음
         '''
-        cur_page = ""
-        page_nm = 0
-        tabs = self.fetch('tr', 'th')[0]
-        self.data = pd.DataFrame(columns=list(tabs))
-        self.prev_data = self.fetch('tr', 'td')
+        if self.page_type == "Stat" :
+            cur_page = ""
+            page_nm = 0
+            tabs = self.fetch('tr', 'th')[0]
+            self.data = pd.DataFrame(columns=list(tabs))
+            self.prev_data = self.fetch('tr', 'td')
 
-        while cur_page != self.html :
+            while cur_page != self.html :
 
-            page_nm += 1
-            cur_data = self.fetch('tr', 'td')
-            if (page_nm >= 2) and (self.prev_data == cur_data) : break;
+                page_nm += 1
+                cur_data = self.fetch('tr', 'td')
+                if (page_nm >= 2) and (self.prev_data == cur_data) : break;
 
-            for row in cur_data:
+                for row in cur_data:
 
-                print(self.data.shape[0], row)
-                self.data.loc[self.data.shape[0]] = row
+                    print(self.data.shape[0], row)
+                    self.data.loc[self.data.shape[0]] = row
 
-            self.prev_data = cur_data
+                self.prev_data = cur_data
 
-            print('{}번째 페이지 저장완료!'.format(page_nm))
-            print('다음페이지로 넘어갑니다.')
+                print('{}번째 페이지 저장완료!'.format(page_nm))
+                print('다음페이지로 넘어갑니다.')
 
-            self.page_skipper()
-            time.sleep(1)
-            self.reset_soup()
+                self.page_skipper()
+                time.sleep(1)
+                self.reset_soup()
 
-    def takeout(self):
-        '''
-        크롤링된 data를 리턴하는 Getter함수
-        :return: 데이터프레임 타입 변수
-        '''
-        try:
-            self.data
-        except NameError:
-            raise RuntimeError("FAILED : 처리된 데이터가 없습니다.")
-        return self.data
+        elif self.page_type == "Results" :
+            #빈 데이터프레임 생성
+            self.data = pd.DataFrame([''] * 20).T.drop(0)
+
+            level_list = ["First Team", "PL2", "U18"]
+
+            for level in level_list :
+
+                self.set_level_results_page(level)
+                print(level)
+                league_list = self.__results_league_menu_scanner(level)
+                print(league_list)
+                for league in league_list :
+                    if league == "All Competitions" : continue;
+                    #리그 페이지 세팅
+                    self.set_league_results_page(league, level)
+                    season_list = self.__results_season_menu_scanner(level) #현 리그 시즌 리스트로 업데이트
+                    print(season_list)
+                    for season in season_list :
+                        #시즌 페이지 세팅
+                        print("{}의 {}의 {}시즌 경기결과를 수집합니다.".format(level, league, season))
+                        self.set_season_results_page(season, level)
+                        #문서 뭉치 받기
+                        result = self.fetch("span", "span")
+                        #문서 뭉치 크롤링
+                        for i in range(len(result)):
+                            if len(result[i]) > 10 : # 데이터 리스트 길이로 필터링
+                                tmp = [""] * 20 # 빈리스트 생성
+                                for j in range(len(result[i])):
+                                    tmp[j] = result[i][j].strip()
+                                    tmp[0] = league
+                                    tmp[1] = season
+                                    tmp[3] = level
+                                self.data.loc[self.data.shape[0]] = tmp
+            #데이터 처리
+            self.data = self.data.iloc[:, [3, 0, 1, 2, 4, 6, 9]]
+            self.data.columns = ['level','league','season','home','score','away','stadium']
+            print("데이터 수집을 완료했습니다.")
+
+        elif self.page_type == "Lineup" :
+            try :
+                #데이터 크롤링
+                lineup_home = self.scrap_lineup("home")
+                if lineup_home.shape[0] == 0 :
+                    print("경기내용이 아직 없습니다. 데이터 수집을 종료합니다.")
+                    return;
+                lineup_away = self.scrap_lineup("away")
+                self.data = pd.concat([lineup_home, lineup_away])
+            except :
+                print("{}번째 매치 라인업정보를 수집하지 못했습니다.".format(self.first_match))
+                pass
+            # 연속적으로 다음페이지 넘어가기
+            while self.first_match != self.last_match:
+                for i in range(5) :
+                    try :
+                        self.first_match += 1
+                        self.set_lineup_page(self.first_match)
+                        lineup_home = self.scrap_lineup("home")
+                        lineup_away = self.scrap_lineup("away")
+                        self.data = pd.concat([self.data, lineup_home, lineup_away])
+                        self.data = self.data.reset_index(drop=True)
+                        self.reset_soup()
+                        break
+                    except :
+                        print("{}번째 매치 라인업정보를 수집하지 못했습니다. 재시도({})".format(self.first_match,i))
+                        self.first_match -= 1
+                        continue
+
+
+            print("데이터 수집을 완료했습니다.")
+
+        elif self.page_type == "Matchs":
+            try :
+                # 데이터 크롤링
+                matchstats = self.scrap_matchstats()
+
+                # 연속적으로 다음페이지 넘어가기
+                while self.first_match != self.last_match:
+                    self.first_match += 1
+                    self.set_matchstats_page(self.first_match)
+                    matchstats = pd.concat([matchstats, self.scrap_matchstats()])
+
+                self.data = matchstats
+                self.data = self.data.reset_index(drop=True)
+                self.reset_soup()
+                print("데이터 수집을 완료했습니다.")
+            except :
+                print("경기내용이 아직 없습니다. 데이터 수집을 종료합니다.")
+                return;
+
+
+    def scrap_matchstats(self):
+
+        # 매치 기본 정보
+        matchInfo = self.driver.find_element_by_class_name("matchInfo").text.split("\n")
+        # 매치 클럽 이름
+        home_nm = self.driver.find_element_by_xpath(
+            "//*[@id='mainContent']/div/section/div[2]/section/div[3]/div/div/div[1]/div[1]/a[2]/span[1]").text
+        away_nm = self.driver.find_element_by_xpath(
+            "//*[@id='mainContent']/div/section/div[2]/section/div[3]/div/div/div[1]/div[3]/a[2]/span[1]").text
+        # 경기 스코어
+        score = self.driver.find_element_by_xpath(
+            "//*[@id='mainContent']/div/section/div[2]/section/div[3]/div/div/div[1]/div[2]/div").text
+        dataset = self.fetch("tr", "td")
+        cols = ["match_date", "referee", "stadium", "att", "home_team", "score", "away_team"] + ["home_" + data[1] for data in dataset] + ["away_" + data[1] for data in dataset]
+        vals = [matchInfo[0], matchInfo[1], matchInfo[2], matchInfo[3][5:], home_nm, score, away_nm] + [data[0] for data in dataset] + [data[2] for data in dataset]
+        matchstats = pd.DataFrame(columns=cols)
+        matchstats.loc[matchstats.shape[0]] = vals
+        return matchstats
+
+
+
+
+    def scrap_lineup(self, team):
+
+        hora_idx = 0 if team == "home" else 1
+        # 매치 기본 정보
+        matchInfo = self.driver.find_element_by_class_name("matchInfo").text.split("\n")
+        # 매치 클럽 이름
+        team_idx = 1 if hora_idx == 0 else 3
+        team_nm = self.driver.find_element_by_xpath(
+            "//*[@id='mainContent']/div/section/div[2]/section/div[3]/div/div/div[1]/div[{}]/a[2]/span[1]".format(team_idx)).text
+        # 경기 스코어
+        score = self.driver.find_element_by_xpath(
+            "//*[@id='mainContent']/div/section/div[2]/section/div[3]/div/div/div[1]/div[2]/div").text
+        # 포메이션 정보
+        formation = self.driver.find_elements_by_class_name("matchTeamFormation")[hora_idx].text
+        # 라인업 정보
+        lineup_elems = self.driver.find_elements_by_class_name("matchLineupTeamContainer")
+        position_elems = lineup_elems[hora_idx].find_elements_by_tag_name('h3')
+        players_by_position_elems = lineup_elems[hora_idx].find_elements_by_tag_name('ul')
+        positions = [position.text for position in position_elems]
+        members_by_position_text = [members.text.replace('Shirt number', '').replace("Team Captain\nC\n", '') for
+                                    members in players_by_position_elems]
+
+        # 라인업 정보 데이터 처리
+        lineup = pd.DataFrame(
+            columns=["match_date", "referee", "stadium", "att", "club", "formation", "position", "start", "number",
+                     "name", "nationality", "sub", "sub_time", "goal", "card"])
+
+        for idx, members_text in enumerate(members_by_position_text):
+
+            p = re.compile(
+                r'(\n(?P<player>[\d]+[\D]+[\d\']*[\D]+)(?=\n\n\d{1,2}\n))|(\n(?P<player2>[\d]+[\D]+[\d\']*[\D]+)$)')
+            m = p.finditer(members_text)
+            players = []
+            for player in m:
+                player1 = player.group("player")
+                player2 = player.group("player2")
+                if player1 != None:  players.append(player.group("player"))
+                if player2 != None:  players.append(player.group("player2"))
+            players = [player.split("\n") for player in players]
+
+            for player in players:
+                index = idx if idx <= 3 else 4
+                start = "substitue" if index == 4 else "start"  # 주전/후보여부
+                nationality = player[-2] if index == 4 else player[-1]  # 국적
+                position = player[-1] if index == 4 else positions[index]  # 포지션
+                sub = "On" if "Substitution On" in player else (
+                    "Off" if "Substitution Off" in player else "")  # 교체여부
+                sub_time = ""
+                for factor in player:
+                    if factor.find("\'") != -1: sub_time = factor  # 교체시간
+                goal = str(player.count("Goal"))  # 골 수
+                # 경고, 퇴장 여부
+                try:
+                    player.index("Yellow Card")
+                    card = "Yellow"
+                except:
+                    try:
+                        player.index("Red Card")
+                        card = "Red"
+                    except:
+                        card = ""
+
+                # 데이터 저장
+                lineup.loc[lineup.shape[0]] = \
+                    [matchInfo[0], matchInfo[1], matchInfo[2], matchInfo[3][5:],  # 매치 기본 정보 입력
+                     team_nm, formation,  # 팀 정보 입력
+                     position, start, player[0], player[1], nationality, sub, sub_time, goal, card]  # 선수 정보 입력
+        return lineup
+
+    def set_lineup_page(self, page_nm) :
+
+        dst_url = self.url + str(page_nm)
+        self.driver.get(dst_url)
+        time.sleep(1)
+        for i in range(10) :
+            try :
+                self.driver.find_element_by_class_name("matchCentreSquadLabelContainer").click()
+                home = self.driver.find_element_by_xpath("//*[@id='mainContent']/div/section/div[2]/section/div[3]/div/div/div[1]/div[1]/a[2]/span[1]").text
+                away = self.driver.find_element_by_xpath("//*[@id='mainContent']/div/section/div[2]/section/div[3]/div/div/div[1]/div[3]/a[2]/span[1]").text
+                print("{}번째 ({} VS {}) 매치 라인업정보 페이지 세팅완료!".format(page_nm,home, away))
+                break;
+            except :
+                print("재시도 횟수 : {}".format(i+1))
+                continue
+
+
+    def set_matchstats_page(self, page_nm):
+
+        dst_url = self.url + str(page_nm)
+        self.driver.get(dst_url)
+        time.sleep(1)
+        for i in range(10):
+            try:
+                self.driver.find_element_by_xpath("//*[@id='mainContent']/div/section/div[2]/div[2]/div[1]/div/div/ul/li[3]").click()
+                home = self.driver.find_element_by_xpath("//*[@id='mainContent']/div/section/div[2]/section/div[3]/div/div/div[1]/div[1]/a[2]/span[1]").text
+                away = self.driver.find_element_by_xpath("//*[@id='mainContent']/div/section/div[2]/section/div[3]/div/div/div[1]/div[3]/a[2]/span[1]").text
+                print("{}번째 ({} VS {}) 매치 통계정보 페이지 세팅완료!".format(page_nm,home, away))
+                break;
+            except:
+                print("재시도 횟수 : {}".format(i + 1))
+                continue

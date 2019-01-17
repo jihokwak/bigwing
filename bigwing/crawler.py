@@ -2,11 +2,11 @@ from bs4 import BeautifulSoup
 import warnings; warnings.filterwarnings("ignore")
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.keys import Keys
 from IPython.display import clear_output
 import re, os, time
 import pandas as pd
-from bigwing.db import BigwingMysqlDriver
+import numpy as np
+import threading
 
 class BigwingCrawler():
 
@@ -236,10 +236,11 @@ class BigwingCrawler():
     def __del__(self) :
         print("사이트 브라우징이 종료되었습니다.")
         self.driver.close()
+        self.driver.quit()
 
 class EPLCrawler(BigwingCrawler):
 
-    def __init__(self, url='about:blank', match_nm=None,  page_nm="all", page_type="Stat", browser='Chrome', headless=True):
+    def __init__(self, url='about:blank', page_range=None,  page_nm="all", page_type="Stat", browser='Chrome', headless=True, n_jobs=1):
         '''
         EPL사이트의 Stat 정보를 가져오는 크롤러 클래스 생성자
         :param url: 페이지 url 입력 인수
@@ -250,6 +251,10 @@ class EPLCrawler(BigwingCrawler):
         self.page_nm = page_nm
         self.page_type = page_type
         self.browser = browser
+        self.data = None
+        self.n_jobs = n_jobs
+        self.partitions = self.partitioner(page_range[0], page_range[1], n_jobs) if page_range != None else {}
+        self.error_pages = []
         super().__init__(url, browser, headless)
         if page_type=="Stat" :
             self.url = url
@@ -261,19 +266,27 @@ class EPLCrawler(BigwingCrawler):
 
         elif page_type=="Lineup" :
             self.url = "https://www.premierleague.com/match/"
-            self.first_match = match_nm[0]
-            self.last_match = match_nm[1]
+            self.first_match = page_range[0]
+            self.last_match = page_range[1]
             self.set_lineup_page(self.first_match)
 
         elif page_type=="Matchs" :
             self.url = "https://www.premierleague.com/match/"
-            self.first_match = match_nm[0]
-            self.last_match = match_nm[1]
+            self.first_match = page_range[0]
+            self.last_match = page_range[1]
             self.set_matchstats_page(self.first_match)
         else :
             pass
 
         time.sleep(2)
+
+    def partitioner(self, start, end, divide):
+
+        partitions = {}
+        partition_sp = np.linspace(start - 1, end, divide + 1).astype(int)
+        for i in range(len(partition_sp) - 1):
+            partitions[(partition_sp[i] + 1, partition_sp[i + 1])] = pd.DataFrame()
+        return partitions
 
     def set_level_results_page(self, level):
         for i in range(10) :
@@ -542,36 +555,11 @@ class EPLCrawler(BigwingCrawler):
             print("데이터 수집을 완료했습니다.")
 
         elif self.page_type == "Lineup" :
-            try :
-                #데이터 크롤링
-                lineup_home = self.scrap_lineup("home")
-                if lineup_home.shape[0] == 0 :
-                    print("경기내용이 아직 없습니다. 데이터 수집을 종료합니다.")
-                    return;
-                lineup_away = self.scrap_lineup("away")
-                self.data = pd.concat([lineup_home, lineup_away])
-            except :
-                print("{}번째 매치 라인업정보를 수집하지 못했습니다.".format(self.first_match))
-                pass
-            # 연속적으로 다음페이지 넘어가기
-            while self.first_match != self.last_match:
-                for i in range(5) :
-                    try :
-                        self.first_match += 1
-                        self.set_lineup_page(self.first_match)
-                        lineup_home = self.scrap_lineup("home")
-                        lineup_away = self.scrap_lineup("away")
-                        self.data = pd.concat([self.data, lineup_home, lineup_away])
-                        self.data = self.data.reset_index(drop=True)
-                        self.reset_soup()
-                        break
-                    except :
-                        print("{}번째 매치 라인업정보를 수집하지 못했습니다. 재시도({})".format(self.first_match,i))
-                        self.first_match -= 1
-                        continue
 
-
-            print("데이터 수집을 완료했습니다.")
+            print("{} 개 프로세스로 작동합니다.".format(len(self.partitions.keys())))
+            for partition_key in self.partitions.keys():
+                t = threading.Thread(target=self.crawl, args=partition_key)
+                t.start()
 
         elif self.page_type == "Matchs":
             try :
@@ -582,7 +570,7 @@ class EPLCrawler(BigwingCrawler):
                 while self.first_match != self.last_match:
                     self.first_match += 1
                     self.set_matchstats_page(self.first_match)
-                    matchstats = pd.concat([matchstats, self.scrap_matchstats()])
+                    matchstats = matchstats.append(self.scrap_matchstats()).fillna("")
 
                 self.data = matchstats
                 self.data = self.data.reset_index(drop=True)
@@ -592,6 +580,31 @@ class EPLCrawler(BigwingCrawler):
                 print("경기내용이 아직 없습니다. 데이터 수집을 종료합니다.")
                 return;
 
+    def crawl(self, cur_page, last_page):
+
+        if self.page_type == "Lineup" :
+            while cur_page != (last_page + 1):
+
+                for i in range(3):
+                    try:
+                        self.set_lineup_page(cur_page)
+                        lineup_home = self.scrap_lineup("home")
+                        lineup_away = self.scrap_lineup("away")
+                        self.partition[(cur_page, last_page)] = pd.concat(
+                            [self.partition[(cur_page, last_page)], lineup_home, lineup_away])
+                        self.partition[(cur_page, last_page)] = self.partition[(cur_page, last_page)].reset_index(drop=True)
+                        self.reset_soup()
+                        cur_page += 1
+                        print("{}번째 매치 라인업정보 수집완료!".format(cur_page))
+                        break
+                    except:
+                        print("{}번째 매치 라인업정보를 수집하지 못했습니다. 재시도({})".format(cur_page, i))
+                        if i == 2: self.error_page.append(cur_page)  # 에러페이지 기록
+                        continue
+        else :
+            pass;
+
+        print("데이터 수집을 완료했습니다.")
 
     def scrap_matchstats(self):
 
@@ -606,14 +619,11 @@ class EPLCrawler(BigwingCrawler):
         score = self.driver.find_element_by_xpath(
             "//*[@id='mainContent']/div/section/div[2]/section/div[3]/div/div/div[1]/div[2]/div").text
         dataset = self.fetch("tr", "td")
-        cols = ["match_date", "referee", "stadium", "att", "home_team", "score", "away_team"] + ["home_" + data[1] for data in dataset] + ["away_" + data[1] for data in dataset]
-        vals = [matchInfo[0], matchInfo[1], matchInfo[2], matchInfo[3][5:], home_nm, score, away_nm] + [data[0] for data in dataset] + [data[2] for data in dataset]
+        cols = ["matchinfo_"+str(i+1) for i in range(len(matchInfo))] + ["home_team", "score", "away_team"] + ["home_" + data[1] for data in dataset] + ["away_" + data[1] for data in dataset]
+        vals = matchInfo + [home_nm, score, away_nm] + [data[0] for data in dataset] + [data[2] for data in dataset]
         matchstats = pd.DataFrame(columns=cols)
-        matchstats.loc[matchstats.shape[0]] = vals
+        matchstats.loc[0] = vals
         return matchstats
-
-
-
 
     def scrap_lineup(self, team):
 
@@ -627,8 +637,6 @@ class EPLCrawler(BigwingCrawler):
         # 경기 스코어
         score = self.driver.find_element_by_xpath(
             "//*[@id='mainContent']/div/section/div[2]/section/div[3]/div/div/div[1]/div[2]/div").text
-        # 포메이션 정보
-        formation = self.driver.find_elements_by_class_name("matchTeamFormation")[hora_idx].text
         # 라인업 정보
         lineup_elems = self.driver.find_elements_by_class_name("matchLineupTeamContainer")
         position_elems = lineup_elems[hora_idx].find_elements_by_tag_name('h3')
@@ -639,13 +647,13 @@ class EPLCrawler(BigwingCrawler):
 
         # 라인업 정보 데이터 처리
         lineup = pd.DataFrame(
-            columns=["match_date", "referee", "stadium", "att", "club", "formation", "position", "start", "number",
+            columns=["matchinfo_"+str(i+1) for i in range(len(matchInfo))] + ["club", "position", "start", "number",
                      "name", "nationality", "sub", "sub_time", "goal", "card"])
 
         for idx, members_text in enumerate(members_by_position_text):
 
             p = re.compile(
-                r'(\n(?P<player>[\d]+[\D]+[\d\']*[\D]+)(?=\n\n\d{1,2}\n))|(\n(?P<player2>[\d]+[\D]+[\d\']*[\D]+)$)')
+                    r'(\n(?P<player>[\d]+[\D]+[\d\n\'+ ]*[\D]+)(?=\n\n\d{1,2}\n))|(\n(?P<player2>[\d]+[\D]+[\d\n\'+ ]*[\D]+)$)')
             m = p.finditer(members_text)
             players = []
             for player in m:
@@ -678,9 +686,7 @@ class EPLCrawler(BigwingCrawler):
                         card = ""
 
                 # 데이터 저장
-                lineup.loc[lineup.shape[0]] = \
-                    [matchInfo[0], matchInfo[1], matchInfo[2], matchInfo[3][5:],  # 매치 기본 정보 입력
-                     team_nm, formation,  # 팀 정보 입력
+                lineup.loc[lineup.shape[0]] = matchInfo + [team_nm,  # 경기 및 팀 정보 입력
                      position, start, player[0], player[1], nationality, sub, sub_time, goal, card]  # 선수 정보 입력
         return lineup
 
@@ -688,13 +694,13 @@ class EPLCrawler(BigwingCrawler):
 
         dst_url = self.url + str(page_nm)
         self.driver.get(dst_url)
-        time.sleep(1)
+        time.sleep(0.3)
         for i in range(10) :
             try :
                 self.driver.find_element_by_class_name("matchCentreSquadLabelContainer").click()
                 home = self.driver.find_element_by_xpath("//*[@id='mainContent']/div/section/div[2]/section/div[3]/div/div/div[1]/div[1]/a[2]/span[1]").text
                 away = self.driver.find_element_by_xpath("//*[@id='mainContent']/div/section/div[2]/section/div[3]/div/div/div[1]/div[3]/a[2]/span[1]").text
-                print("{}번째 ({} VS {}) 매치 라인업정보 페이지 세팅완료!".format(page_nm,home, away))
+                print("{}번째 ({} VS {}) 매치 페이지 로드 완료!".format(page_nm,home, away))
                 break;
             except :
                 print("재시도 횟수 : {}".format(i+1))
@@ -705,14 +711,27 @@ class EPLCrawler(BigwingCrawler):
 
         dst_url = self.url + str(page_nm)
         self.driver.get(dst_url)
-        time.sleep(1)
+        time.sleep(0.3)
         for i in range(10):
             try:
                 self.driver.find_element_by_xpath("//*[@id='mainContent']/div/section/div[2]/div[2]/div[1]/div/div/ul/li[3]").click()
                 home = self.driver.find_element_by_xpath("//*[@id='mainContent']/div/section/div[2]/section/div[3]/div/div/div[1]/div[1]/a[2]/span[1]").text
                 away = self.driver.find_element_by_xpath("//*[@id='mainContent']/div/section/div[2]/section/div[3]/div/div/div[1]/div[3]/a[2]/span[1]").text
-                print("{}번째 ({} VS {}) 매치 통계정보 페이지 세팅완료!".format(page_nm,home, away))
+                print("{}번째 ({} VS {}) 매치 페이지 로드 완료!".format(page_nm,home, away))
                 break;
             except:
                 print("재시도 횟수 : {}".format(i + 1))
                 continue
+
+    def takeout(self):
+        '''
+        크롤링한 데이터셋을 리턴하는 함수
+        :return: data (타입 : 데이터프레임)
+        '''
+        if self.page_type == "Lineup" :
+            if self.n_jobs == 1 :
+                return self.partitions.pop()
+            else :
+                return self.partitions
+        else :
+            return self.data

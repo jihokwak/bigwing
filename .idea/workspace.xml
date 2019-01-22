@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="99eb5b2c-a6d6-4adc-85a5-b7714beeb541" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/bigwing/crawler.py" beforeDir="false" afterPath="$PROJECT_DIR$/bigwing/crawler.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -16,8 +15,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/bigwing/crawler.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="312">
-              <caret line="148" lean-forward="true" selection-start-line="148" selection-end-line="148" />
+            <state relative-caret-position="210">
+              <caret line="499" column="38" lean-forward="true" selection-start-line="499" selection-start-column="38" selection-end-line="499" selection-end-column="38" />
               <folding>
                 <element signature="e#0#29#0" expanded="true" />
               </folding>
@@ -360,8 +359,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/bigwing/crawler.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="312">
-          <caret line="148" lean-forward="true" selection-start-line="148" selection-end-line="148" />
+        <state relative-caret-position="210">
+          <caret line="499" column="38" lean-forward="true" selection-start-line="499" selection-start-column="38" selection-end-line="499" selection-end-column="38" />
           <folding>
             <element signature="e#0#29#0" expanded="true" />
           </folding>

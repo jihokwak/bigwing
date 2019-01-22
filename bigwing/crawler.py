@@ -301,7 +301,7 @@ class BigwingCrawler():
         except FileNotFoundError :
             file_data = pd.DataFrame()
         file_data = file_data.append(self.data).reset_index(drop=True)
-        file_data.to_csv("tmpdata/{}/data/{}.csv".format(self.page_type, filename), encoding="utf8")
+        file_data.to_csv("tmpdata/{}/data/{}.csv".format(self.page_type, filename), encoding="utf8", index=False)
 
         print("{} 로 데이터를 저장했습니다.".format(os.path.join(os.path.abspath(os.path.curdir),"tmpdata",self.page_type, "data", filename + ".csv")))
 
@@ -497,6 +497,7 @@ class EPLCrawler(BigwingCrawler):
             if cur_page in self.success_page_list : #이미 크롤링이 성공한 페이지는 넘어가기
                 if cur_page < (last_page + 1) :
                     self.success_pages[partition_key].extend([cur_page])
+                    self.processeds[partition_key] +=1
                     self.successes[partition_key] +=1
                     cur_page += 1
                     continue

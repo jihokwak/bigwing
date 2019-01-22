@@ -15,8 +15,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/bigwing/crawler.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="210">
-              <caret line="502" lean-forward="true" selection-start-line="502" selection-end-line="502" />
+            <state relative-caret-position="346">
+              <caret line="495" lean-forward="true" selection-start-line="495" selection-end-line="495" />
               <folding>
                 <element signature="e#0#29#0" expanded="true" />
               </folding>
@@ -75,7 +75,6 @@
       <find>close</find>
       <find>완료</find>
       <find>수집</find>
-      <find>summary</find>
       <find>중단</find>
       <find>record(s</find>
       <find>save(s</find>
@@ -83,9 +82,10 @@
       <find>record</find>
       <find>저장했</find>
       <find>backup</find>
-      <find>log</find>
       <find>save</find>
       <find>success_page_list</find>
+      <find>log</find>
+      <find>summary</find>
     </findStrings>
     <replaceStrings>
       <replace>set_driver</replace>
@@ -206,7 +206,7 @@
     <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" sideWeight="0.48114902" visible="true" weight="0.26251528" />
-      <window_info id="Structure" order="1" sideWeight="0.518851" side_tool="true" visible="true" weight="0.26251528" />
+      <window_info active="true" id="Structure" order="1" sideWeight="0.518851" side_tool="true" visible="true" weight="0.26251528" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
@@ -218,7 +218,7 @@
       <window_info anchor="bottom" id="Version Control" order="7" weight="0.32852563" />
       <window_info anchor="bottom" id="Terminal" order="8" weight="0.196468" />
       <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
-      <window_info active="true" anchor="bottom" id="Python Console" order="10" visible="true" weight="0.3852097" />
+      <window_info anchor="bottom" id="Python Console" order="10" visible="true" weight="0.3852097" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -359,8 +359,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/bigwing/crawler.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="502" lean-forward="true" selection-start-line="502" selection-end-line="502" />
+        <state relative-caret-position="346">
+          <caret line="495" lean-forward="true" selection-start-line="495" selection-end-line="495" />
           <folding>
             <element signature="e#0#29#0" expanded="true" />
           </folding>

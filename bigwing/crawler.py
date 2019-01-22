@@ -173,7 +173,8 @@ class BigwingCrawler():
             os.makedirs(backupdir)
         try :
             shutil.move(tmpdir, dstdir)
-            print("데이터 백업완료")
+            print("{} 로 데이터를 백업했습니다.".format(
+                os.path.join(dstdir, self.page_type)))
         except :
             pass
 
@@ -289,7 +290,7 @@ class BigwingCrawler():
                 dump_data = pickle.load(f)
         except:
             dump_data = pd.DataFrame()
-        dump_data = dump_data.append(self.data)
+        dump_data = dump_data.append(self.data).reset_index(drop=True)
 
         with open("tmpdata/{}/data/{}.pkl".format(self.page_type, filename), "wb") as f:
             pickle.dump(dump_data, f)
@@ -299,7 +300,7 @@ class BigwingCrawler():
             file_data = pd.read_csv("tmpdata/{}/data/{}.csv".format(self.page_type, filename), encoding="utf8", index_col=False)
         except FileNotFoundError :
             file_data = pd.DataFrame()
-        file_data = file_data.append(self.data)
+        file_data = file_data.append(self.data).reset_index(drop=True)
         file_data.to_csv("tmpdata/{}/data/{}.csv".format(self.page_type, filename), encoding="utf8")
 
         print("{} 로 데이터를 저장했습니다.".format(os.path.join(os.path.abspath(os.path.curdir),"tmpdata",self.page_type, "data", filename + ".csv")))
@@ -445,19 +446,15 @@ class BigwingCrawler():
                 raise
 
         #에러페이지 기록
-        for partition in self.error_pages.values():
-            self.error_page_list.extend(partition)
-        pd.DataFrame(self.error_page_list).to_csv("tmpdata/{}/log/{}_pages.csv".format(self.page_type, "error"), encoding="utf8")
+        pd.DataFrame(self.error_pages).to_csv("tmpdata/{}/log/{}_pages.csv".format(self.page_type, "error"), encoding="utf8")
         with open("tmpdata/{}/log/{}_pages.pkl".format(self.page_type, "error"), "wb") as f:
-            pickle.dump(self.error_page_list, f)
+            pickle.dump(self.error_pages, f)
         print("{} 로 데이터를 저장했습니다.".format(
             os.path.join(os.path.abspath(os.path.curdir), "tmpdata", self.page_type, "log", "error_pages.csv")))
         #성공페이지 기록
-        for partition in self.success_pages.values():
-            self.success_page_list.extend(partition)
-        pd.DataFrame(self.success_page_list).to_csv("tmpdata/{}/log/{}_pages.csv".format(self.page_type, "success"), encoding="utf8")
+        pd.DataFrame(self.success_pages).to_csv("tmpdata/{}/log/{}_pages.csv".format(self.page_type, "success"), encoding="utf8")
         with open("tmpdata/{}/log/{}_pages.pkl".format(self.page_type, "success"), "wb") as f:
-            pickle.dump(self.success_page_list, f)
+            pickle.dump(self.success_pages, f)
         print("{} 로 데이터를 저장했습니다.".format(
             os.path.join(os.path.abspath(os.path.curdir), "tmpdata", self.page_type, "log", "success_pages.csv")))
 
@@ -493,7 +490,10 @@ class EPLCrawler(BigwingCrawler):
 
             if cur_page in self.success_page_list : #이미 크롤링이 성공한 페이지는 넘어가기
                 if cur_page < (last_page + 1) :
-                    cur_page += 1; continue
+                    self.success_pages[partition_key].extend([cur_page])
+                    cur_page += 1
+                    continue
+
                 else : break;
 
             self.status[partition_key] = "{}번 스크랩중".format(cur_page)
@@ -641,16 +641,23 @@ class EPLCrawler(BigwingCrawler):
                     lineup.loc[lineup.shape[0]] = player_info
 
         # 경기정보
-        matchinfo = [""] * 4
-        matchinfo_tmp = [info.text.replace("Att: ", "") for info in self.soups[partition_key].select("div.matchInfo > div")]
-        for idx, info in enumerate(matchinfo_tmp):
-            matchinfo[idx] = info
+        try:
+            matchinfo = [""] * 4
+            matchinfo_tmp = [info.text.replace("Att: ", "") for info in self.soups[partition_key].select("div.matchInfo > div")]
+            for idx, info in enumerate(matchinfo_tmp):
+                matchinfo[idx] = info
+        except :
+            matchinfo = [""] * 4
 
         lineup.insert(0, "Match_Date", matchinfo[0])
         lineup.insert(1, "Referee", matchinfo[1])
         lineup.insert(2, "Stadium", matchinfo[2])
         lineup.insert(3, "Attendence", matchinfo[3])
-        lineup.insert(4, "Score", self.soups[partition_key].select("div.score")[0].text)
+        try:
+            score = self.soups[partition_key].select("div.score")[0].text
+        except:
+            score = ""
+        lineup.insert(4, "Score", score)
 
         return lineup
 

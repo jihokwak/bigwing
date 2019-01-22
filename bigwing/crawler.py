@@ -595,7 +595,7 @@ class EPLCrawler(BigwingCrawler):
                 # 각 선수들
                 for player in players:
                     player_info = []
-                    team_nm = self.soups[partition_key].select("header.squadHeader > div.position")[team].text.strip();
+                    team_nm = self.soups[partition_key].select("header.squadHeader > div.position")[team].find(text=True).strip()
                     player_info.append(team_nm)  # 팀이름
                     number = player.find("div", "number").get_text().replace("Shirt number ", "");
                     player_info.append(number)  # 선수 넘버
@@ -684,7 +684,9 @@ class EPLCrawler(BigwingCrawler):
         time.sleep(0.3)
 
         if self.page_type == "Lineup" :
-            self.drivers[partition_key].find_element_by_class_name("matchCentreSquadLabelContainer").click()
+            if self.drivers[partition_key].find_element_by_class_name("matchCentreSquadLabelContainer").text.strip() == 'Line-ups' :
+                self.drivers[partition_key].find_element_by_class_name("matchCentreSquadLabelContainer").click()
+            else : raise NameError('NoLineups')
 
         elif self.page_type == "Matchs" :
             self.drivers[partition_key].find_element_by_xpath(

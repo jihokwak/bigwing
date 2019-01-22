@@ -497,7 +497,7 @@ class EPLCrawler(BigwingCrawler):
             if cur_page in self.success_page_list : #이미 크롤링이 성공한 페이지는 넘어가기
                 if cur_page < (last_page + 1) :
                     self.success_pages[partition_key].extend([cur_page])
-                    self.successes +=1
+                    self.successes[partition_key] +=1
                     cur_page += 1
                     continue
 

@@ -14,47 +14,12 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/bigwing/api.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="5742">
-              <caret line="325" column="19" selection-start-line="325" selection-start-column="19" selection-end-line="325" selection-end-column="19" />
-              <folding>
-                <element signature="e#39#61#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/bigwing/db.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2178">
-              <caret line="125" column="35" selection-start-line="125" selection-start-column="35" selection-end-line="125" selection-end-column="35" />
-              <folding>
-                <element signature="e#0#14#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/docs/source/conf.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="468">
-              <caret line="27" column="15" selection-start-line="27" selection-start-column="15" selection-end-line="27" selection-end-column="15" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/bigwing/crawler.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="259">
-              <caret line="560" column="75" lean-forward="true" selection-start-line="560" selection-start-column="75" selection-end-line="560" selection-end-column="75" />
+            <state relative-caret-position="5502">
+              <caret line="651" selection-start-line="651" selection-end-line="651" />
               <folding>
                 <element signature="e#0#29#0" expanded="true" />
-                <element signature="e#22077#23205#0" />
-                <element signature="e#23230#26576#0" />
               </folding>
             </state>
           </provider>
@@ -63,17 +28,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/test.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="282">
-              <caret line="79" column="36" selection-start-line="79" selection-start-column="36" selection-end-line="79" selection-end-column="36" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/setup.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="288">
-              <caret line="16" selection-start-line="16" selection-end-line="16" />
+            <state relative-caret-position="579">
+              <caret line="116" lean-forward="true" selection-start-line="116" selection-end-line="116" />
             </state>
           </provider>
         </entry>
@@ -89,20 +45,42 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>theme</find>
-      <find>clear</find>
-      <find>First</find>
-      <find>skipper</find>
-      <find>Matchs</find>
-      <find>재시도 횟수 :</find>
-      <find>index</find>
-      <find>first_match</find>
-      <find>match_nm</find>
-      <find>self.patitions</find>
+      <find>재시도 횟수</find>
+      <find>째</find>
+      <find>time.sleep(0.3)</find>
+      <find>soup</find>
+      <find>디버그3</find>
+      <find>refresh</find>
+      <find>디버그</find>
+      <find>dataset.shape</find>
+      <find>Thread</find>
+      <find>Option</find>
+      <find>zip</find>
+      <find>takeout</find>
+      <find>errors</find>
+      <find>matchs_s</find>
+      <find>error_page</find>
+      <find>moni</find>
+      <find>종료</find>
+      <find>브라우저</find>
+      <find>save_total</find>
+      <find>load</find>
+      <find>close</find>
+      <find>save</find>
+      <find>log</find>
+      <find>완료</find>
+      <find>수집</find>
+      <find>summary</find>
+      <find>중단</find>
+      <find>record(s</find>
+      <find>save(s</find>
+      <find>screen</find>
     </findStrings>
     <replaceStrings>
       <replace>set_driver</replace>
       <replace>self.partitions</replace>
+      <replace>save</replace>
+      <replace>스크랩</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -129,16 +107,16 @@
         <option value="$PROJECT_DIR$/bigwing/test.py" />
         <option value="$PROJECT_DIR$/bigwing/db.py" />
         <option value="$PROJECT_DIR$/test2.py" />
-        <option value="$PROJECT_DIR$/test.py" />
         <option value="$PROJECT_DIR$/bigwing/crawler.py" />
+        <option value="$PROJECT_DIR$/test.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="-8" />
-    <option name="y" value="-8" />
-    <option name="width" value="616" />
-    <option name="height" value="1287" />
+    <option name="x" value="-13" />
+    <option name="y" value="-13" />
+    <option name="width" value="2160" />
+    <option name="height" value="1179" />
   </component>
   <component name="ProjectLevelVcsManager">
     <ConfirmationsSetting value="1" id="Add" />
@@ -154,6 +132,11 @@
           <expand>
             <path>
               <item name="bigwing" type="b2602c69:ProjectViewProjectNode" />
+              <item name="bigwing" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="bigwing" type="b2602c69:ProjectViewProjectNode" />
+              <item name="bigwing" type="462c0819:PsiDirectoryNode" />
               <item name="bigwing" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
@@ -191,6 +174,9 @@
       </list>
     </option>
   </component>
+  <component name="StructureViewFactory">
+    <option name="ACTIVE_ACTIONS" value=",SHOW_INHERITED" />
+  </component>
   <component name="SvnConfiguration">
     <configuration />
   </component>
@@ -207,8 +193,8 @@
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1696" height="1036" extended-state="6" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49584025" visible="true" weight="0.13675214" />
-      <window_info id="Structure" order="1" sideWeight="0.50415975" side_tool="true" visible="true" weight="0.13675214" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.48351648" visible="true" weight="0.25946277" />
+      <window_info id="Structure" order="1" sideWeight="0.51648355" side_tool="true" visible="true" weight="0.25946277" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
@@ -217,10 +203,10 @@
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Version Control" order="7" />
-      <window_info anchor="bottom" id="Terminal" order="8" weight="0.19861111" />
+      <window_info anchor="bottom" id="Version Control" order="7" weight="0.32852563" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="8" visible="true" weight="0.196468" />
       <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
-      <window_info active="true" anchor="bottom" id="Python Console" order="10" visible="true" weight="0.3366446" />
+      <window_info anchor="bottom" id="Python Console" order="10" weight="0.43377483" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -288,17 +274,18 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tmpdata/results.csv">
+    <entry file="file://$PROJECT_DIR$/tmpdata/results.csv" />
+    <entry file="file://$PROJECT_DIR$/test2.py" />
+    <entry file="file://$PROJECT_DIR$/../../../Python36/Lib/multiprocessing/spawn.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="1" column="8" lean-forward="true" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="8" />
+        <state relative-caret-position="-667">
+          <caret line="114" selection-start-line="114" selection-end-line="114" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/test2.py" />
     <entry file="file://$PROJECT_DIR$/bigwing/api.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="5742">
+        <state relative-caret-position="5423">
           <caret line="325" column="19" selection-start-line="325" selection-start-column="19" selection-end-line="325" selection-end-column="19" />
           <folding>
             <element signature="e#39#61#0" expanded="true" />
@@ -308,7 +295,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/bigwing/db.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2178">
+        <state relative-caret-position="2057">
           <caret line="125" column="35" selection-start-line="125" selection-start-column="35" selection-end-line="125" selection-end-column="35" />
           <folding>
             <element signature="e#0#14#0" expanded="true" />
@@ -316,36 +303,48 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/setup.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="272">
+          <caret line="16" selection-start-line="16" selection-end-line="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.PyCharmCE2018.3/system/python_stubs/-1915654892/builtins.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="154">
+          <caret line="742" column="8" selection-start-line="742" selection-start-column="8" selection-end-line="742" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/docs/source/conf.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="468">
+        <state relative-caret-position="408">
           <caret line="27" column="15" selection-start-line="27" selection-start-column="15" selection-end-line="27" selection-end-column="15" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/setup.py">
+    <entry file="file://$PROJECT_DIR$/../../../Python36/Lib/threading.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="288">
-          <caret line="16" selection-start-line="16" selection-end-line="16" />
+        <state relative-caret-position="118">
+          <caret line="863" selection-start-line="863" selection-end-line="863" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/bigwing/crawler.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="259">
-          <caret line="560" column="75" lean-forward="true" selection-start-line="560" selection-start-column="75" selection-end-line="560" selection-end-column="75" />
+        <state relative-caret-position="5502">
+          <caret line="651" selection-start-line="651" selection-end-line="651" />
           <folding>
             <element signature="e#0#29#0" expanded="true" />
-            <element signature="e#22077#23205#0" />
-            <element signature="e#23230#26576#0" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/test.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="282">
-          <caret line="79" column="36" selection-start-line="79" selection-start-column="36" selection-end-line="79" selection-end-column="36" />
+        <state relative-caret-position="579">
+          <caret line="116" lean-forward="true" selection-start-line="116" selection-end-line="116" />
         </state>
       </provider>
     </entry>

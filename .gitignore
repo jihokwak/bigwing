@@ -9,3 +9,7 @@ tmpdata/
 ghostdriver.log
 
 test.py
+
+backup/
+
+tmp/

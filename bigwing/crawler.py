@@ -446,15 +446,21 @@ class BigwingCrawler():
                 raise
 
         #에러페이지 기록
-        pd.DataFrame(self.error_pages).to_csv("tmpdata/{}/log/{}_pages.csv".format(self.page_type, "error"), encoding="utf8")
+        error_page_list = []
+        for partition in self.error_pages.values() :
+            error_page_list.extend(partition)
+        pd.DataFrame(error_page_list).to_csv("tmpdata/{}/log/{}_pages.csv".format(self.page_type, "error"), encoding="utf8")
         with open("tmpdata/{}/log/{}_pages.pkl".format(self.page_type, "error"), "wb") as f:
-            pickle.dump(self.error_pages, f)
+            pickle.dump(error_page_list, f)
         print("{} 로 데이터를 저장했습니다.".format(
             os.path.join(os.path.abspath(os.path.curdir), "tmpdata", self.page_type, "log", "error_pages.csv")))
         #성공페이지 기록
-        pd.DataFrame(self.success_pages).to_csv("tmpdata/{}/log/{}_pages.csv".format(self.page_type, "success"), encoding="utf8")
+        success_page_list = []
+        for partition in self.success_pages.values():
+            success_page_list.extend(partition)
+        pd.DataFrame(success_page_list).to_csv("tmpdata/{}/log/{}_pages.csv".format(self.page_type, "success"), encoding="utf8")
         with open("tmpdata/{}/log/{}_pages.pkl".format(self.page_type, "success"), "wb") as f:
-            pickle.dump(self.success_pages, f)
+            pickle.dump(success_page_list, f)
         print("{} 로 데이터를 저장했습니다.".format(
             os.path.join(os.path.abspath(os.path.curdir), "tmpdata", self.page_type, "log", "success_pages.csv")))
 

@@ -295,9 +295,12 @@ class BigwingCrawler():
             pickle.dump(dump_data, f)
 
         #기존 데이터와 병합
-        fild_data = pd.read_csv("tmpdata/{}/data/{}.csv".format(self.page_type, filename), encoding="utf8", index_col=False)
-        fild_data = fild_data.append(self.data)
-        fild_data.to_csv("tmpdata/{}/data/{}.csv".format(self.page_type, filename), encoding="utf8")
+        try :
+            file_data = pd.read_csv("tmpdata/{}/data/{}.csv".format(self.page_type, filename), encoding="utf8", index_col=False)
+        except FileNotFoundError :
+            file_data = pd.DataFrame()
+        file_data = file_data.append(self.data)
+        file_data.to_csv("tmpdata/{}/data/{}.csv".format(self.page_type, filename), encoding="utf8")
 
         print("{} 로 데이터를 저장했습니다.".format(os.path.join(os.path.abspath(os.path.curdir),"tmpdata",self.page_type, "data", filename + ".csv")))
 

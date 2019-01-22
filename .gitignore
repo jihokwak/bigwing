@@ -11,3 +11,5 @@ ghostdriver.log
 backup/
 
 tmp/
+
+bw_env/

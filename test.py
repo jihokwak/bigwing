@@ -56,7 +56,7 @@ del epl
 
 '''22300~37020번 경기 라인업정보 스크랩'''
 from bigwing.crawler import EPLCrawler
-epl = EPLCrawler(page_range=(22300,37020), page_type="Lineup", n_jobs=1)
+epl = EPLCrawler(page_range=(22300,37020), page_type="Lineup", n_jobs=10)
 epl.start()
 epl.monitor()
 epl.save()

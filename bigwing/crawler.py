@@ -539,9 +539,11 @@ class EPLCrawler(BigwingCrawler):
             if error_flag == False  :     
                 self.successes[partition_key] += 1  # 성공건수 기록
                 self.success_pages[partition_key].extend([cur_page])  # 성공페이지 기록
+                self.success_page_list.extend([cur_page])
             else                    :     
                 self.errors[partition_key] += 1  # 실패건수 기록
                 self.error_pages[partition_key].extend([cur_page])  # 에러페이지 기록
+                self.error_page_list.extend([cur_page])
 
             cur_page += 1
 

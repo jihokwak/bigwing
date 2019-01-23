@@ -705,8 +705,7 @@ class EPLCrawler(BigwingCrawler):
         try:
             if not (os.path.isdir(os.path.join("tmpdata", self.page_type))):
                 os.makedirs(os.path.join("tmpdata", self.page_type))
-            if not (os.path.isdir(os.path.join("tmpdata", self.page_type, "screenshot"))):
-                os.makedirs(os.path.join("tmpdata", self.page_type, "screenshot"))
+
         except OSError as e:
             if e.errno != errno.EEXIST:
                 print("디렉토리 생성 실패.")
@@ -724,5 +723,4 @@ class EPLCrawler(BigwingCrawler):
                 "//*[@id='mainContent']/div/section/div[2]/div[2]/div[1]/div/div/ul/li[3]").click()
 
         time.sleep(0.2)
-        #self.drivers[partition_key].save_screenshot("tmpdata/{}/screenshot/{}.png".format(self.page_type, page_nm))
         self.refresh(partition_key)

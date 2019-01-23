@@ -256,9 +256,9 @@ class BigwingCrawler():
 
     def summary(self):
 
-        print("*" * 121)
+        print("-" * 108)
         for partition_key in self.partitions:
-            line = "{:>15} 스크랩프로세스 - 상태: {:>5}% {}, 총 {:>6}건, 성공 {:>6}건, 실패 {:>6}건".format(
+            line = "{:>15} 스크랩프로세스 | {:>5}% {} | 총 {:>6}건 | 성공 {:>6}건 | 실패 {:>6}건".format(
                 str(partition_key),
                 ("%.1f" % (self.processeds[partition_key] / (partition_key[1] - partition_key[0] + 1) * 100)),
                 self.status[partition_key],
@@ -266,8 +266,35 @@ class BigwingCrawler():
                 self.successes[partition_key],
                 self.errors[partition_key],
             )
-            print("*{:^95}*".format(line))
-        print("*" * 121)
+            print("|{:>82}     |".format(line))
+        print("-" * 108)
+
+        total_processeds = 0
+        for i in self.processeds.values() : total_processeds += i
+        total_successes = 0
+        for i in self.successes.values(): total_successes += i
+        total_errors = 0
+        for i in self.errors.values(): total_errors += i
+        total_status = "준비완료"
+        for status in self.status.values() :
+            if "진행중" in status :  total_status = "진행중"
+        cnt = 0
+        for status in self.status.values() :
+            if "종료" in status : cnt +=1
+        if cnt == len(self.status.values()) :
+            total_status = "종료"
+        percentage = (total_processeds / (self.end_page - self.start_page + 1)) * 100
+        line = "{:>12} 스크랩프로세스 | {:>5}% {} | 총 {:>6}건 | 성공 {:>6}건 | 실패 {:>6}건".format(
+            "전체",
+            "%.1f" % percentage,
+            total_status,
+            self.end_page - self.start_page + 1,
+            total_successes,
+            total_errors,
+        )
+        print("|{:>80}     |".format(line))
+        print("-" * 108)
+
 
     def record(self):
 

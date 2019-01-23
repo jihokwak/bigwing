@@ -56,7 +56,7 @@ del epl
 
 '''22300~37020번 경기 라인업정보 스크랩'''
 from bigwing.crawler import EPLCrawler
-epl = EPLCrawler(page_range=(22300,37020), page_type="Lineup", n_jobs=10)
+epl = EPLCrawler(page_range=(22300,37020), page_type="Lineup", n_jobs=1)
 epl.start()
 epl.monitor()
 epl.save()
@@ -66,9 +66,8 @@ lineup = epl.takeout()
 #데이터를 로컬파일에서 로드하고 문자열로 데이터 처리
 import pandas as pd
 lineup = pd.read_csv("D:/Kwak/Doc/git/bigwing/tmpdata/Lineup/data/total_Lineup_22300_37020.csv", encoding="utf8", index_col=False)
-lineup = lineup.iloc[:,1:-2]
-for col in lineup.columns :
-    lineup[col] = lineup[col].astype(str)
+lineup = lineup.iloc[:,:-1]
+lineup = lineup.astype(str)
 #DB저장
 from bigwing.db import BigwingMysqlDriver
 db = BigwingMysqlDriver(host = "121.130.100.175",user = "bigwing",dbname = "bigwingdb",passwd = "bigdream!")

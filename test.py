@@ -78,3 +78,17 @@ db.commit()
 db.close()
 epl.close()
 del epl
+
+'''경기결과 데이터셋'''
+import pandas as pd
+results = pd.read_csv('D:/Kwak/Doc/git/bigwing/backup/result/results.csv', index_col=False, encoding='utf8')
+results = results.iloc[:,1:]
+results = results.iloc[1:,:]
+results = results.astype(str)
+results = results.reset_index(drop=True)
+from bigwing.db import BigwingMysqlDriver
+db = BigwingMysqlDriver(host = "121.130.100.175",user = "bigwing",dbname = "bigwingdb",passwd = "bigdream!")
+db.create('Results', tuple(results.columns))
+db.insert_bulk("Results", results)
+db.commit()
+db.close()

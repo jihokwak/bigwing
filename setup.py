@@ -17,7 +17,7 @@ setup_requires = []
 
 setup(
 	name				= 'bigwing',
-	version				= '1.2.4',
+	version				= '1.4.0',
 	description			= 'bingwing project',
 	author 				= 'jihokwak',
 	author_email		= 'kakuteeko@naver.com',

@@ -13,13 +13,12 @@ warnings.filterwarnings("ignore")
 
 class BigwingAPIProcessor(metaclass=ABCMeta) :
     ''' 빅윙추상클래스 '''
-    @abstractmethod
-    def __fetch(self) :
+    def run(self, limit=True):
         pass
-    @abstractmethod
-    def run(self) :
+
+    def __fetch(self, address) :
         pass
-    
+
     def insert(self, data, col) :
         '''
         검색대상 데이터셋 입력함수
@@ -41,37 +40,7 @@ class BigwingAPIProcessor(metaclass=ABCMeta) :
                 print("SUCCEEDED : 데이터를 삽입했습니다.")
         return self
     
-    def run(self, limit=True) :
-        '''
-        api 호출을 일괄실행하는 함수
-        limit 인수는 Boolean 자료형을 받습니다. (Default : True)
-        limit이 True일경우, 처리상태가 "OK"인 행데이터는 Skip하고 연속진행
-        :return: 없음
-        '''
-        self._check("data") #데이터 삽입여부 확인
-        self._check("url") # 인증키 유효성 확인
 
-        data = self.data.copy()
-        if (limit == True) & ("처리상태" in data.columns) :
-            data = data[data["처리상태"] != "OK"]
-        data_size = len(data)
-        succeed_cnt = 0
-        if data_size != 0 :
-            for idx, keyword in enumerate(data[self.col]) :
-                #변환 및 저장
-                values = self.__fetch(keyword)
-                if values[0] == "OK" :
-                    succeed_cnt += 1
-                for value in values[1:] :
-                    self.data.loc[self.data[self.col]==keyword, value[0]] = value[1]
-                self.data.loc[self.data[self.col]==keyword, "처리상태"] = values[0]
-                #결과 출력
-                print("{} / {} ... {}%".format(idx+1,data_size, round((idx+1)/data_size*100),1))
-                print("{} --> {}".format(keyword,values))
-                clear_output(wait=True)
-        print("처리완료!")
-        print("추가정상처리건수 : ", succeed_cnt)
-        self.summary()
     
     def takeout(self) :
         '''
@@ -130,17 +99,116 @@ class BigwingAPIProcessor(metaclass=ABCMeta) :
         except AttributeError:
             raise RuntimeError("FAILED : {} 를 확인해주세요.".format(attr))
 
+class Bigwing_Geocoder(BigwingAPIProcessor) :
+    def __init__(self, vkey, ckey, crs="EPSG:4236", type_="ROAD"):
+
+        # 파라미터 설정
+        self.base_url = "http://api.vworld.kr/req/address?service=address&request=getCoord"
+        self.params = {}
+        self.params["key"] = vkey  # 인증키 설정
+        self.params['crs'] = crs  # 좌표계 설정
+        self.params['type'] = type_  # 도로명 또는 지번 설정 (ROAD or PARCEL)
+        self.params['simple'] = "true"  # 간단한 출력설정
+        self._set_param()
+        self.vurl = self.url
+
+        self.base_url = "http://www.juso.go.kr/addrlink/addrLinkApi.do?"
+        self.params = {}
+        self.params["confmKey"] = ckey  # 인증키 설정
+        self.params['currentPage'] = "1"
+        self.params['countPerPage'] = "10"
+        self.params['resultType'] = "json"
+        self._set_param()
+        self.curl = self.url
+        status = self.__fetch("서울특별시 종로구 세종로 1")[0]
+        if status != "OK":
+            print("KEY " + status + " : 인증키를 다시 확인해주세요.")
+        else:
+            print("KEY  " + status + " : 인증키 유효성 확인 성공!")
+
+    def __fetch(self, keyword):
+
+
+        fetch_url = self.curl + "&keyword=" + keyword
+
+        for cnt in range(10):
+            try:
+                resp = req.get(fetch_url).text
+            except:
+                print("{}번째 Fetch".format(cnt + 2))
+                sleep(3)
+                continue
+            break
+        resp = json.loads(resp)
+
+        status = "OK" if "juso" in resp["results"].keys() else "NOT_FOUND"  # 상태코드 조회
+        if status == 'OK':
+            values = resp['results']['juso'][0]
+            fetch_url = self.vurl + "&address=" + values.get("roadAddr")
+            addr_refined = values.get("roadAddr")
+        else :
+            fetch_url = self.vurl + "&address=" + keyword
+            addr_refined = keyword
+
+        for cnt in range(10):
+            try:
+                resp = req.get(fetch_url).text
+
+            except:
+                print("{}번째 Fetch".format(cnt + 2))
+                sleep(3)
+                continue
+            break
+        resp = json.loads(resp)
+
+        status = resp['response']['status']  # 상태코드 조회
+        if status == 'OK':
+            # 반환데이터 변수저장
+            values = resp['response']['result']['point']
+            values['address_refined'] = addr_refined
+            print(str(values), status)
+            return tuple([status] + [value for value in values.items()])
+        else:
+            return tuple(["NOT_FOUND"])
+
+    def run(self, limit=True):
+        '''
+        api 호출을 일괄실행하는 함수
+        limit 인수는 Boolean 자료형을 받습니다. (Default : True)
+        limit이 True일경우, 처리상태가 "OK"인 행데이터는 Skip하고 연속진행
+        :return: 없음
+        '''
+        self._check("data")  # 데이터 삽입여부 확인
+        self._check("url")  # 인증키 유효성 확인
+
+        data = self.data.copy()
+        if (limit == True) & ("처리상태" in data.columns):
+            data = data[data["처리상태"] != "OK"]
+        data_size = len(data)
+        succeed_cnt = 0
+        if data_size != 0:
+            for idx, keyword in enumerate(data[self.col]):
+                # 변환 및 저장
+                values = self.__fetch(keyword)
+                if values[0] == "OK":
+                    succeed_cnt += 1
+                for value in values[1:]:
+                    self.data.loc[self.data[self.col] == keyword, value[0]] = value[1]
+                self.data.loc[self.data[self.col] == keyword, "처리상태"] = values[0]
+                # 결과 출력
+                print("{} / {} ... {}%".format(idx + 1, data_size, round((idx + 1) / data_size * 100), 1))
+                print("{} --> {}".format(keyword, values))
+                clear_output(wait=True)
+        print("처리완료!")
+        print("추가정상처리건수 : ", succeed_cnt)
+        self.summary()
+
 
 class Vwolrd_Geocoder(BigwingAPIProcessor) :
     '''브이월드 지오코더'''
 
-    def __init__(self, key, crs="EPSG:5181",type_="ROAD") :
-        '''
-        브이월드 지오코더 클래스 생성자
-        :param key: 브이월드 인증키 입력 인수
-        :param crs: 좌표계 입력 인수 (Default : EPSG:5181)
-        :param type_: 도로명 또는 지번 주소 지정 옵션 입력 인수 (Default : ROAD) # ROAD(도로명) or PARCEL(지번)
-        '''
+    def __init__(self, key, crs="EPSG:4236",type_="PARCEL") :
+
         #파라미터 설정
         self.base_url = "http://api.vworld.kr/req/address?service=address&request=getCoord"
         self.params = {}
@@ -181,9 +249,44 @@ class Vwolrd_Geocoder(BigwingAPIProcessor) :
         if status == 'OK' :
             #반환데이터 변수저장
             values = resp['response']['result']['point']
+            print(values)
             return tuple([status] + [value for value in values.items()])
+
         else :
             return tuple(["NOT_FOUND"])
+
+    def run(self, limit=True) :
+        '''
+        api 호출을 일괄실행하는 함수
+        limit 인수는 Boolean 자료형을 받습니다. (Default : True)
+        limit이 True일경우, 처리상태가 "OK"인 행데이터는 Skip하고 연속진행
+        :return: 없음
+        '''
+        self._check("data") #데이터 삽입여부 확인
+        self._check("url") # 인증키 유효성 확인
+
+        data = self.data.copy()
+        if (limit == True) & ("처리상태" in data.columns) :
+            data = data[data["처리상태"] != "OK"]
+        data_size = len(data)
+        succeed_cnt = 0
+        if data_size != 0 :
+            for idx, keyword in enumerate(data[self.col]) :
+                #변환 및 저장
+                values = self.__fetch(keyword)
+                print("debug : ",values)
+                if values[0] == "OK" :
+                    succeed_cnt += 1
+                for value in values[1:] :
+                    self.data.loc[self.data[self.col]==keyword, value[0]] = value[1]
+                self.data.loc[self.data[self.col]==keyword, "처리상태"] = values[0]
+                #결과 출력
+                print("{} / {} ... {}%".format(idx+1,data_size, round((idx+1)/data_size*100),1))
+                print("{} --> {}".format(keyword,values))
+                clear_output(wait=True)
+        print("처리완료!")
+        print("추가정상처리건수 : ", succeed_cnt)
+        self.summary()
 
         
 ####구글지오코더####
@@ -232,6 +335,38 @@ class Google_Geocoder(BigwingAPIProcessor) :
             return tuple([status] + [value for value in values.items()])
         else :
             return tuple(["NOT_FOUND"])
+
+    def run(self, limit=True) :
+        '''
+        api 호출을 일괄실행하는 함수
+        limit 인수는 Boolean 자료형을 받습니다. (Default : True)
+        limit이 True일경우, 처리상태가 "OK"인 행데이터는 Skip하고 연속진행
+        :return: 없음
+        '''
+        self._check("data") #데이터 삽입여부 확인
+        self._check("url") # 인증키 유효성 확인
+
+        data = self.data.copy()
+        if (limit == True) & ("처리상태" in data.columns) :
+            data = data[data["처리상태"] != "OK"]
+        data_size = len(data)
+        succeed_cnt = 0
+        if data_size != 0 :
+            for idx, keyword in enumerate(data[self.col]) :
+                #변환 및 저장
+                values = self.__fetch(keyword)
+                if values[0] == "OK" :
+                    succeed_cnt += 1
+                for value in values[1:] :
+                    self.data.loc[self.data[self.col]==keyword, value[0]] = value[1]
+                self.data.loc[self.data[self.col]==keyword, "처리상태"] = values[0]
+                #결과 출력
+                print("{} / {} ... {}%".format(idx+1,data_size, round((idx+1)/data_size*100),1))
+                print("{} --> {}".format(keyword,values))
+                clear_output(wait=True)
+        print("처리완료!")
+        print("추가정상처리건수 : ", succeed_cnt)
+        self.summary()
             
 ### 행정안전부 도로명주소변환기 ####
 class AddressConverter(BigwingAPIProcessor) :
@@ -276,12 +411,50 @@ class AddressConverter(BigwingAPIProcessor) :
             break
         resp = json.loads(resp)
         
-        status = "OK" if resp['results']['juso'] != [] else "NOT_FOUND" #상태코드 조회
-        if status == 'OK' :
-            values = resp['results']['juso'][0]
-            return tuple([status] + [value for value in values.items()])
+        status = "OK" if "juso" in resp["results"].keys() else "NOT_FOUND" #상태코드 조회
+        if status == 'OK':
+            if resp["results"]["juso"]:
+                values = resp['results']['juso'][0]
+                return tuple([status] + [value for value in values.items()])
+            else:
+                return tuple(["NOT_FOUND"])
         else :
-            return tuple(["NOT_FOUND"])    
+            return tuple(["NOT_FOUND"])
+
+    def run(self, limit=True) :
+        '''
+        api 호출을 일괄실행하는 함수
+        limit 인수는 Boolean 자료형을 받습니다. (Default : True)
+        limit이 True일경우, 처리상태가 "OK"인 행데이터는 Skip하고 연속진행
+        :return: 없음
+        '''
+        self._check("data") #데이터 삽입여부 확인
+        self._check("url") # 인증키 유효성 확인
+
+        data = self.data.copy()
+        if (limit == True) & ("처리상태" in data.columns) :
+            data = data[data["처리상태"] != "OK"]
+        data_size = len(data)
+        succeed_cnt = 0
+        if data_size != 0 :
+            for idx, keyword in enumerate(data[self.col]) :
+                #변환 및 저장
+                values = self.__fetch(keyword)
+                if values[0] == "OK" :
+                    succeed_cnt += 1
+                for value in values[1:] :
+                    self.data.loc[self.data[self.col]==keyword, value[0]] = value[1]
+                self.data.loc[self.data[self.col]==keyword, "처리상태"] = values[0]
+                #결과 출력
+                print("{} / {} ... {}%".format(idx+1,data_size, round((idx+1)/data_size*100),1))
+                print("{} --> {}".format(keyword,values))
+                clear_output(wait=True)
+        print("처리완료!")
+        print("추가정상처리건수 : ", succeed_cnt)
+        self.summary()
+
+
+
 
 class SuperAPICaller(BigwingAPIProcessor) :
     '''제너럴 API 요청 클래스'''
@@ -350,4 +523,38 @@ class SuperAPICaller(BigwingAPIProcessor) :
         if status == 'OK' :
             return tuple([status] + [value for value in self.values.items()])
         else :
-            return tuple(["NOT_FOUND"])    
+            return tuple(["NOT_FOUND"])
+
+    def run(self, limit=True) :
+        '''
+        api 호출을 일괄실행하는 함수
+        limit 인수는 Boolean 자료형을 받습니다. (Default : True)
+        limit이 True일경우, 처리상태가 "OK"인 행데이터는 Skip하고 연속진행
+        :return: 없음
+        '''
+        self._check("data") #데이터 삽입여부 확인
+        self._check("url") # 인증키 유효성 확인
+
+        data = self.data.copy()
+        if (limit == True) & ("처리상태" in data.columns) :
+            data = data[data["처리상태"] != "OK"]
+        data_size = len(data)
+        succeed_cnt = 0
+        if data_size != 0 :
+            for idx, keyword in enumerate(data[self.col]) :
+                #변환 및 저장
+                values = self.__fetch(keyword)
+                print("debug : ",values)
+                if values[0] == "OK" :
+                    succeed_cnt += 1
+                for value in values[1:] :
+                    self.data.loc[self.data[self.col]==keyword, value[0]] = value[1]
+                self.data.loc[self.data[self.col]==keyword, "처리상태"] = values[0]
+                #결과 출력
+                print("{} / {} ... {}%".format(idx+1,data_size, round((idx+1)/data_size*100),1))
+                print("{} --> {}".format(keyword,values))
+                clear_output(wait=True)
+        print("처리완료!")
+        print("추가정상처리건수 : ", succeed_cnt)
+        self.summary()
+
